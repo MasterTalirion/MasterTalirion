@@ -1,16 +1,30 @@
+import java.util.Date;
 import java.util.Scanner;
 
 public class Calendar {
 
+    final static int EXTSIZE = 20;
+    final static int TOTALCOLUMNS = 5;
+    final static int DATECELL = 0;
+    final static int NAMECELL = 1;
+    final static int TYPECELL = 2;
+    final static int GUESTCELL = 3;
+    final static int PLACECELL = 4;
+
 
     public static void main (String[] args){
-
+        Date date = new Date();
+        String dateStr = date.toString();
+        //System.out.println(dateStr);
         Scanner scanner = new Scanner(System.in);
 
-        while (true) {
-            String []today= {"15","10","2021"};//Непонятно пока откуда будет браться текущая дата. Прописал шаблон.
+        String[][] events = new String[100][TOTALCOLUMNS];
+        int lastEmptyCell = 0;
 
-            showMonth(today[0],today[1]);
+        while (true) {
+            String []today = dateStr.split(" ");
+
+            showMonth(today[2],today[1]);
             System.out.println();
 
             System.out.println("Select operation:");
@@ -26,7 +40,59 @@ public class Calendar {
             switch (operation) {
 
                 case "add": {
+                    while (true) {
+                        System.out.println("Date: ");
+                        events[lastEmptyCell][DATECELL] = scanner.nextLine();
+                        if (events[lastEmptyCell][DATECELL].matches("[0-9]{2},[.],[0-9]{2},[.],[0-9]{4}")) {            //TODO
+                            break;
+                        } else {
+                            System.out.println(
+                                    "Date value is not valid! Please enter again.");
+                        }
+                    }
+                    while (true) {
+                        System.out.println("Name: ");
+                        events[lastEmptyCell][NAMECELL] = scanner.nextLine();
+                        if (events[lastEmptyCell][NAMECELL].matches("[A-Z][a-z][0-9]+")) {
+                            break;
+                        } else {
+                            System.out.println(
+                                    "Name value is not valid! Please enter again.");
+                        }
+                    }
+                    while (true) {
+                        System.out.println("Date: ");
+                        events[lastEmptyCell][0] = scanner.nextLine();
+                        if (events[lastEmptyCell][NAMECELL].matches("[A-Z][a-z][0-9]+")) {
+                            break;
+                        } else {
+                            System.out.println(
+                                    "Name value is not valid! Please enter again.");
+                        }
+                    }
+                    while (true) {
+                        System.out.println("Date: ");
+                        events[lastEmptyCell][0] = scanner.nextLine();
+                        if (events[lastEmptyCell][NAMECELL].matches("[A-Z][a-z][0-9]+")) {
+                            break;
+                        } else {
+                            System.out.println(
+                                    "Name value is not valid! Please enter again.");
+                        }
+                    }
+                    while (true) {
+                        System.out.println("Date: ");
+                        events[lastEmptyCell][0] = scanner.nextLine();
+                        if (events[lastEmptyCell][NAMECELL].matches("[A-Z][a-z][0-9]+")) {
+                            break;
+                        } else {
+                            System.out.println(
+                                    "Name value is not valid! Please enter again.");
+                        }
+                    }
 
+                    lastEmptyCell++;
+                    break;
                 }
                 case "update": {
 
@@ -119,52 +185,63 @@ public class Calendar {
 
         String [][]monthToday;
         switch (month) {
-
-            case "1":
+            case "Jan":
+                System.out.println("           JANUARY");
                 monthToday=January;
                 printMonth(monthToday, day);
                 break;
-            case "2":
+            case "Feb":
+                System.out.println("           FEBRUARY");
                 monthToday=February;
                 printMonth(monthToday, day);
                 break;
-            case "3":
+            case "Mar":
+                System.out.println("            MARCH");
                 monthToday=March;
                 printMonth(monthToday, day);
                 break;
-            case "4":
+            case "Apr":
+                System.out.println("            APRIL");
                 monthToday=April;
                 printMonth(monthToday, day);
                 break;
-            case "5":
+            case "May":
+                System.out.println("             MAY");
                 monthToday=May;
                 printMonth(monthToday, day);
                 break;
-            case "6":
+            case "Jun":
+                System.out.println("            JUNE");
                 monthToday=June;
                 printMonth(monthToday, day);
                 break;
-            case "7":
+            case "Jul":
+                System.out.println("            JULY");
                 monthToday=July;
                 printMonth(monthToday, day);
                 break;
-            case "8":
+            case "Aug":
+                System.out.println("           AUGUST");
                 monthToday=August;
                 printMonth(monthToday, day);
                 break;
-            case "9":
+            case "Sep":
+                System.out.println("          SEPTEMBER");
                 monthToday=September;
                 printMonth(monthToday, day);
                 break;
-            case "10":
+            case "Oct":
+                System.out.println("           OCTOBER");
                 monthToday=October;
                 printMonth(monthToday, day);
                 break;
-            case "11":
+            case "Nov":
+                System.out.println("          NOVEMBER");
                 monthToday=November;
                 printMonth(monthToday, day);
                 break;
-            case "12":
+            case "Dec":
+                System.out.println("          DECEMBER");
                 monthToday=December;
                 printMonth(monthToday, day);
                 break;
@@ -178,13 +255,13 @@ public class Calendar {
         public static void printMonth(String [][] monthToday, String day){
             for (int i = 0; i < monthToday.length; i++) {
                 for (int j = 0; j < monthToday[i].length; j++) {
-                    if (monthToday[i][j].trim().equals(day)){
-                        if(day.trim().length()==2){
+                    if (monthToday[i][j].trim().equals(day)||("0"+monthToday[i][j].trim()).equals(day)){
+                        if(day.trim().length()==2&&day.trim().charAt(0)!='0'){
                             System.out.print("["+day+"]");
                         }else{
-                            System.out.print("[ "+day+"]");
+                            System.out.print("[ "+monthToday[i][j].trim()+"]");
                         }
-                    }else {
+                    }else{
                         System.out.print(monthToday[i][j]);
                     }
                 }
