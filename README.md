@@ -4,22 +4,24 @@ import java.util.Scanner;
 public class Calendar {
 
     final static int EXTSIZE = 20;
-    final static int TOTALCOLUMNS = 5;
-    final static int DATECELL = 0;
-    final static int NAMECELL = 1;
-    final static int TYPECELL = 2;
-    final static int GUESTCELL = 3;
-    final static int PLACECELL = 4;
+    final static int TOTALCOLUMNS = 6;
+    final static int INDEXCELL =0;
+    final static int DATECELL = 1;
+    final static int NAMECELL = 2;
+    final static int TYPECELL = 3;
+    final static int GUESTCELL = 4;
+    final static int PLACECELL = 5;
 
 
-    public static void main (String[] args){
+    public static void main (String[] args) {
+
         Date date = new Date();
         String dateStr = date.toString();
-        //System.out.println(dateStr);
+
         Scanner scanner = new Scanner(System.in);
 
-        String[][] events = new String[100][TOTALCOLUMNS];
-        int lastEmptyCell = 0;
+      String[][] events = new String[100][TOTALCOLUMNS];
+      int lastEmptyCell = 0;
 
         while (true) {
             String []today = dateStr.split(" ");
@@ -40,54 +42,52 @@ public class Calendar {
             switch (operation) {
 
                 case "add": {
+                    events[lastEmptyCell][INDEXCELL] =  Integer.toString(lastEmptyCell);;
+                    System.out.println(events[lastEmptyCell][INDEXCELL]);
+
                     while (true) {
                         System.out.println("Date: ");
                         events[lastEmptyCell][DATECELL] = scanner.nextLine();
-                        if (events[lastEmptyCell][DATECELL].matches("[0-9]{2},[.],[0-9]{2},[.],[0-9]{4}")) {            //TODO
+                        if (events[lastEmptyCell][DATECELL].matches("[0-9]{2}[.][0-9]{2}[.][0-9]{4}")) {            //TODO
                             break;
                         } else {
-                            System.out.println(
-                                    "Date value is not valid! Please enter again.");
+                            System.out.println("Date value is not valid! Please enter again.");
                         }
                     }
                     while (true) {
                         System.out.println("Name: ");
                         events[lastEmptyCell][NAMECELL] = scanner.nextLine();
-                        if (events[lastEmptyCell][NAMECELL].matches("[A-Z][a-z][0-9]+")) {
+                        if (events[lastEmptyCell][NAMECELL].matches("[A-Za-z0-9 ]+")) {   //TODO
                             break;
                         } else {
-                            System.out.println(
-                                    "Name value is not valid! Please enter again.");
+                            System.out.println("Name value is not valid! Please enter again.");
                         }
                     }
                     while (true) {
-                        System.out.println("Date: ");
-                        events[lastEmptyCell][0] = scanner.nextLine();
-                        if (events[lastEmptyCell][NAMECELL].matches("[A-Z][a-z][0-9]+")) {
+                        System.out.println("Type: ");
+                        events[lastEmptyCell][TYPECELL] = scanner.nextLine();
+                        if (events[lastEmptyCell][TYPECELL].equals("Regular")||events[lastEmptyCell][TYPECELL].equals("One-type")) {           //TODO
                             break;
-                        } else {
-                            System.out.println(
-                                    "Name value is not valid! Please enter again.");
+                        }else{
+                            System.out.println("Type value is not valid! Please enter again (Regular or One-type).");
                         }
                     }
                     while (true) {
-                        System.out.println("Date: ");
-                        events[lastEmptyCell][0] = scanner.nextLine();
-                        if (events[lastEmptyCell][NAMECELL].matches("[A-Z][a-z][0-9]+")) {
+                        System.out.println("Members: ");
+                        events[lastEmptyCell][GUESTCELL] = scanner.nextLine();
+                        if (events[lastEmptyCell][GUESTCELL].matches("[A-Za-z,]+")) {          //TODO
                             break;
                         } else {
-                            System.out.println(
-                                    "Name value is not valid! Please enter again.");
+                            System.out.println("Members value is not valid! Please enter again.");
                         }
                     }
                     while (true) {
-                        System.out.println("Date: ");
-                        events[lastEmptyCell][0] = scanner.nextLine();
-                        if (events[lastEmptyCell][NAMECELL].matches("[A-Z][a-z][0-9]+")) {
+                        System.out.println("Place: ");
+                        events[lastEmptyCell][PLACECELL] = scanner.nextLine();
+                        if (events[lastEmptyCell][PLACECELL].matches("[A-Za-z0-9, ]+")) {          //TODO
                             break;
-                        } else {
-                            System.out.println(
-                                    "Name value is not valid! Please enter again.");
+                        }else{
+                            System.out.println("Place value is not valid! Please enter again.");
                         }
                     }
 
@@ -101,7 +101,13 @@ public class Calendar {
 
                 }
                 case "show": {
+                    System.out.println("Showing all contacts:");
+                    String[][] sortedEvents = new String[lastEmptyCell][TOTALCOLUMNS];
 
+                    for (int i = 0; i < lastEmptyCell; i++) {
+                        copyOneContactToAnother(events, i, sortedEvents, i);
+                        sortedEvents[i][TOTALCOLUMNS] = "" + i;
+                    }
                 }
                 case "search": {
 
@@ -252,7 +258,7 @@ public class Calendar {
 
         }
 
-        public static void printMonth(String [][] monthToday, String day){
+    public static void printMonth(String [][] monthToday, String day){
             for (int i = 0; i < monthToday.length; i++) {
                 for (int j = 0; j < monthToday[i].length; j++) {
                     if (monthToday[i][j].trim().equals(day)||("0"+monthToday[i][j].trim()).equals(day)){
@@ -268,6 +274,16 @@ public class Calendar {
                 System.out.println();
             }
         }
+
+    private static void copyOneContactToAnother(String[][] fromEvent, int fromEventIndex, String[][] toEvent, int toEventIndex) {
+
+        toEvent[toEventIndex][INDEXCELL] = fromEvent[fromEventIndex][INDEXCELL];
+        toEvent[toEventIndex][DATECELL] = fromEvent[fromEventIndex][DATECELL];
+        toEvent[toEventIndex][NAMECELL] = fromEvent[fromEventIndex][NAMECELL];
+        toEvent[toEventIndex][TYPECELL] = fromEvent[fromEventIndex][TYPECELL];
+        toEvent[toEventIndex][GUESTCELL] = fromEvent[fromEventIndex][GUESTCELL];
+        toEvent[toEventIndex][PLACECELL] = fromEvent[fromEventIndex][PLACECELL];
+    }
 
 }
 
