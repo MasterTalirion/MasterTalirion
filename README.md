@@ -1,39 +1,46 @@
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Scanner;
 
-public class NewStep9 {
-
-    //MODIFICATION - STEP 8 - START
-    //MODIFICATION - STEP 6 - START
+public class Calendar {
 
     final static int EXTSIZE = 20;
-    final static int TOTALCOLUMNS = 7;
+    final static int TOTALCOLUMNS = 6;
+    final static int INDEXCELL = 0;
+    final static int DATECELL = 1;
+    final static int NAMECELL = 2;
+    final static int TYPECELL = 3;
+    final static int GUESTCELL = 4;
+    final static int PLACECELL = 5;
 
-    final static int NAMECELL = 0;
-    final static int SURNAMECELL = 1;
-    final static int TELCELL = 2;
-    final static int EMAILCELL = 3;
-    final static int PATNAMECELL = 4;
-    final static int MATNAMECELL = 5;
-    final static int ADDRESSCELL = 6;
 
-    //MODIFICATION - STEP 6 - END
-    //MODIFICATION - STEP 8 - END
+    public static void main(String[] args) throws ParseException {
 
-    public static void main(String[] args) {
-
-        String[][] telContacts = new String[100][TOTALCOLUMNS]; //MODIFICATION IN: STEP 6
-        int lastEmptyCell = 0;
+        Date date = new Date();
+        String dateStr = date.toString();
 
         Scanner scanner = new Scanner(System.in);
 
+        String[][] events = new String[100][TOTALCOLUMNS];
+        int lastEmptyCell = 0;
+
         while (true) {
+            String[] today = dateStr.split(" ");
+
+            showMonth(today[2], today[1]);
+            System.out.println();
+
+            int num = eventToday(events,lastEmptyCell,today[2],today[1],today[5]);
+
+            System.out.println("Today you have "+num+" events");
 
             System.out.println("Select operation:");
-            System.out.println("(add) Add contact");
-            System.out.println("(update) Update contact");
-            System.out.println("(delete) Delete contact");
-            System.out.println("(show) Show contacts");
-            System.out.println("(search) Show contacts");
+            System.out.println("(add) Add event");
+            System.out.println("(update) Update event");
+            System.out.println("(delete) Delete event");
+            System.out.println("(show) Show all events");
+            System.out.println("(search) Show event");
             System.out.println("(exit) Exit");
 
             String operation = scanner.nextLine();
@@ -42,218 +49,218 @@ public class NewStep9 {
 
                 case "add": {
 
-                    //increase array size when array is exhausted
-                    if (lastEmptyCell == telContacts.length) {
+                    if (lastEmptyCell == events.length) {
+                        String[][] tmp = new String[events.length + EXTSIZE][TOTALCOLUMNS];
 
-                        String[][] tmp = new String[telContacts.length
-                                + EXTSIZE][TOTALCOLUMNS]; //MODIFICATION IN: STEP 6
-
-                        for (int i = 0; i < telContacts.length; i++) {
-                            //MODIFICATION - STEP 8 - START
-                            copyOneContactToAnother(telContacts, i, tmp, i);
-                            //MODIFICATION - STEP 8 - END
+                        for (int i = 0; i < events.length; i++) {
+                            copyOneContactToAnother(events, i, tmp, i);
                         }
-
-                        telContacts = tmp;
+                        events = tmp;
                     }
 
-                    //MODIFICATION - STEP 4 - START
-                    //Entered data validation logic goes here
+                    events[lastEmptyCell][INDEXCELL] = Integer.toString(lastEmptyCell);
+                    ;
+                    System.out.println(events[lastEmptyCell][INDEXCELL]);
 
                     while (true) {
-                        System.out.println("Name:");
-                        telContacts[lastEmptyCell][NAMECELL] = scanner.nextLine();
-                        if (telContacts[lastEmptyCell][NAMECELL].matches("[A-Z][a-z]+")) {
+                        System.out.println("Date: ");
+                        events[lastEmptyCell][DATECELL] = scanner.nextLine();
+                        if (events[lastEmptyCell][DATECELL].matches("[0-9]{2}[.][0-9]{2}[.][0-9]{4}")) {            //TODO
                             break;
                         } else {
-                            System.out.println(
-                                    "Name value is not valid (should be only lower case letters starting with upper letter, smth like \"John\")! Please enter again.");
+                            System.out.println("Date value is not valid! Please enter again.");
                         }
                     }
-
                     while (true) {
-                        System.out.println("Surname:");
-                        telContacts[lastEmptyCell][SURNAMECELL] = scanner.nextLine();
-                        if (telContacts[lastEmptyCell][SURNAMECELL].matches("[A-Z][a-z]+")) {
+                        System.out.println("Name: ");
+                        events[lastEmptyCell][NAMECELL] = scanner.nextLine();
+                        if (events[lastEmptyCell][NAMECELL].matches("[A-Za-z0-9 ]+")) {   //TODO
                             break;
                         } else {
-                            System.out.println(
-                                    "Surname value is not valid (should be only lower case letters starting with upper letter, smth like \"Smith\")! Please enter again.");
+                            System.out.println("Name value is not valid! Please enter again.");
                         }
                     }
-
                     while (true) {
-                        System.out.println("Tel:");
-                        telContacts[lastEmptyCell][TELCELL] = scanner.nextLine();
-                        if (telContacts[lastEmptyCell][TELCELL].matches("\\+[1-9][0-9]+")) {
+                        System.out.println("Type: ");
+                        events[lastEmptyCell][TYPECELL] = scanner.nextLine();
+                        if (events[lastEmptyCell][TYPECELL].equals("Regular") || events[lastEmptyCell][TYPECELL].equals("One-type")) {           //TODO
                             break;
                         } else {
-                            System.out.println(
-                                    "Tel value is not valid (should be smth like \"+1575759484\")! Please enter again.");
+                            System.out.println("Type value is not valid! Please enter again (Regular or One-type).");
                         }
                     }
-
                     while (true) {
-                        System.out.println("Email:");
-                        telContacts[lastEmptyCell][EMAILCELL] = scanner.nextLine();
-                        if (telContacts[lastEmptyCell][EMAILCELL]
-                                .matches("[A-Za-z.-_0-9]+@[A-Za-z.-_0-9]+.[a-z]+")) {
+                        System.out.println("Members: ");
+                        events[lastEmptyCell][GUESTCELL] = scanner.nextLine();
+                        if (events[lastEmptyCell][GUESTCELL].matches("[A-Za-z, ]+")) {          //TODO
                             break;
                         } else {
-                            System.out.println(
-                                    "Email value is not valid (should be smth like \"john@gmail.com\"! Please enter again.");
+                            System.out.println("Members value is not valid! Please enter again.");
                         }
                     }
-
-                    //MODIFICATION - STEP 4 - END
-
-                    //MODIFICATION - STEP 6 - START
                     while (true) {
-                        System.out.println("Paternal:");
-                        telContacts[lastEmptyCell][PATNAMECELL] = scanner.nextLine();
-                        if (telContacts[lastEmptyCell][PATNAMECELL].matches("[A-Z][a-z]+")) {
+                        System.out.println("Place: ");
+                        events[lastEmptyCell][PLACECELL] = scanner.nextLine();
+                        if (events[lastEmptyCell][PLACECELL].matches("[A-Za-z0-9, ]+")) {          //TODO
                             break;
                         } else {
-                            System.out.println(
-                                    "Surname value is not valid (should be only lower case letters starting with upper letter, smth like \"Smith\")! Please enter again.");
-                        }
-                    }
-
-                    while (true) {
-                        System.out.println("Maternal:");
-                        telContacts[lastEmptyCell][MATNAMECELL] = scanner.nextLine();
-                        if (telContacts[lastEmptyCell][MATNAMECELL].matches("[A-Z][a-z]+")) {
-                            break;
-                        } else {
-                            System.out.println(
-                                    "Surname value is not valid (should be only lower case letters starting with upper letter, smth like \"Smith\")! Please enter again.");
-                        }
-                    }
-
-                    while (true) {
-                        System.out.println("Address:");
-                        telContacts[lastEmptyCell][ADDRESSCELL] = scanner.nextLine();
-                        if (telContacts[lastEmptyCell][ADDRESSCELL].trim().length() > 0) {
-                            break;
-                        } else {
-                            System.out.println(
-                                    "Address should not be empty! Please enter again.");
+                            System.out.println("Place value is not valid! Please enter again.");
                         }
                     }
 
                     lastEmptyCell++;
-
-                    break;
-                }
-                case "search": {
-                    if(lastEmptyCell==0){
-                        System.out.println("Not find telContacts!");
-                        break;
-                    }
-
-                    System.out.println("Enter search keyword:");
-
-                    String searchKeyword = scanner.nextLine();
-
-
-                    String[][] foundTelContacts = searchTelContacts(telContacts, lastEmptyCell,
-                            searchKeyword);
-
-                    showTelContacts(foundTelContacts);
-
                     break;
                 }
                 case "update": {
-                    if(lastEmptyCell==0){
-                        System.out.println("Not find telContacts!");
+                    if (lastEmptyCell == 0) {
+                        System.out.println("Not find events!");
                         break;
                     }
-                    System.out.println("Enter contact number:");
+                    System.out.println("Enter id:");
 
-                    int contactIndex = scanner.nextInt();
+                    int eventIndex = scanner.nextInt();
 
-                    if (contactIndex < lastEmptyCell) {
+                    if (eventIndex < lastEmptyCell) {
 
                         System.out.println("Current values:");
-                        System.out.print("#" + contactIndex + ":");
-                        System.out.print(telContacts[contactIndex][NAMECELL] + ", ");
-                        System.out.print(telContacts[contactIndex][SURNAMECELL] + ", ");
-                        System.out.print(telContacts[contactIndex][TELCELL] + ", ");
-                        System.out.print(telContacts[contactIndex][EMAILCELL] + ",");
-                        System.out.print(telContacts[contactIndex][PATNAMECELL] + ", ");
-                        System.out.print(telContacts[contactIndex][MATNAMECELL] + ", ");
-                        System.out.print(telContacts[contactIndex][ADDRESSCELL] + ".");
+                        System.out.print("#" + eventIndex + ":");
+                        System.out.print(events[eventIndex][DATECELL] + ", ");
+                        System.out.print(events[eventIndex][NAMECELL] + ", ");
+                        System.out.print(events[eventIndex][TYPECELL] + ", ");
+                        System.out.print(events[eventIndex][GUESTCELL] + ",");
+                        System.out.print(events[eventIndex][PLACECELL] + ", ");
                         System.out.println();
 
-                        System.out.println("New name:");
-                        telContacts[contactIndex][NAMECELL] = scanner.nextLine();
-                        System.out.println("New surname:");
-                        telContacts[contactIndex][SURNAMECELL] = scanner.nextLine();
-                        System.out.println("New tel:");
-                        telContacts[contactIndex][TELCELL] = scanner.nextLine();
-                        System.out.println("New email:");
-                        telContacts[contactIndex][EMAILCELL] = scanner.nextLine();
-                        System.out.println("New paternal name:");
-                        telContacts[contactIndex][PATNAMECELL] = scanner.nextLine();
-                        System.out.println("New maternal name:");
-                        telContacts[contactIndex][MATNAMECELL] = scanner.nextLine();
-                        System.out.println("New address:");
-                        telContacts[contactIndex][ADDRESSCELL] = scanner.nextLine();
 
+                        while (true) {
+                            System.out.println("New date:");
+                            events[eventIndex][DATECELL] = scanner.nextLine();
+                            if (events[eventIndex][DATECELL].matches("[0-9]{2}[.][0-9]{2}[.][0-9]{4}")) {            //TODO
+                                break;
+                            } else {
+                                System.out.println("Date value is not valid! Please enter again.");
+                            }
+                        }
+                        while (true) {
+                            System.out.println("New name:");
+                            events[eventIndex][NAMECELL] = scanner.nextLine();
+                            if (events[eventIndex][NAMECELL].matches("[A-Za-z0-9 ]+")) {   //TODO
+                                break;
+                            } else {
+                                System.out.println("Name value is not valid! Please enter again.");
+                            }
+                        }
+                        while (true) {
+                            System.out.println("New type:");
+                            events[eventIndex][TYPECELL] = scanner.nextLine();
+                            if (events[eventIndex][TYPECELL].equals("Regular") || events[eventIndex][TYPECELL].equals("One-type")) {           //TODO
+                                break;
+                            } else {
+                                System.out.println("Type value is not valid! Please enter again (Regular or One-type).");
+                            }
+                        }
+                        while (true) {
+                            System.out.println("New members:");
+                            events[eventIndex][GUESTCELL] = scanner.nextLine();
+                            if (events[eventIndex][GUESTCELL].matches("[A-Za-z, ]+")) {          //TODO
+                                break;
+                            } else {
+                                System.out.println("Members value is not valid! Please enter again.");
+                            }
+                        }
+
+                        while (true) {
+                            System.out.println("New place:");
+                            events[eventIndex][PLACECELL] = scanner.nextLine();
+                            if (events[eventIndex][PLACECELL].matches("[A-Za-z0-9, ]+")) {          //TODO
+                                break;
+                            } else {
+                                System.out.println("Place value is not valid! Please enter again.");
+                            }
+                        }
                     } else {
-                        System.out.println("No such contact!");
+                        System.out.println("ID not found");
                     }
 
                     break;
                 }
                 case "delete": {
-
                     if (lastEmptyCell == 0) {
-                        System.out.println("Not find telContacts!");
+                        System.out.println("Not find events!");
                         break;
                     }
 
+                    System.out.println("Delete by id# (id) or search keyword (word)?");
 
-                    System.out.println("Entry id#:");
+                    String deletionType = scanner.nextLine();
+                    int id[]=null;
 
-                    String strId = scanner.nextLine();
-                    String[] idForDelete = strId.split(",");
-                    int []id = new int[idForDelete.length];
+                    if ("id".equalsIgnoreCase(deletionType)) {
 
-                    for(int i=0;i<id.length;i++){
-                        id[i] = Integer.parseInt(idForDelete[i]); //new tool for students to remember
-                        System.out.println("Deleting entry id#=" + id[i] + "...");
+                        System.out.println("Entry id#:");
+
+                        String strId = scanner.nextLine();
+                        String[] idForDelete = strId.split(",");
+                        id = new int[idForDelete.length];
+                        for (int i = 0; i < id.length; i++) {
+                            id[i] = Integer.parseInt(idForDelete[i]);
+                            System.out.println("Deleting entry id#=" + id[i] + "...");
+                        }
+                    } else if ("word".equalsIgnoreCase(deletionType)) {
+
+                        System.out.println("Please enter search keyword:");
+
+                        String searchKeyword = scanner.nextLine();
+
+
+                        String[][] foundEvents = searchEvents(events,lastEmptyCell,searchKeyword);
+
+                        showEvents(foundEvents);
+
+                        System.out.println("Please enter id#:");
+
+                        String strId = scanner.nextLine();
+                        String[] idForDelete = strId.split(",");
+                        id = new int[idForDelete.length];
+
+                        for (int i = 0; i < id.length; i++) {
+                            id[i] = Integer.parseInt(idForDelete[i]);
+                            System.out.println("Deleting entry id#=" + id[i] + "...");
+                        }
+                    }else{
+                        System.out.println("Incorrect command");
+                        break;
                     }
 
                     boolean isAnythingDeleted = false;
 
-                    for(int j=0;j<id.length;j++){
+                    for (int j = 0; j < id.length; j++) {
 
                         if (id[j] < lastEmptyCell) {
 
-                            for (int i = id[j]; i < lastEmptyCell && lastEmptyCell < telContacts.length; i++) {
-                                copyOneContactToAnother(telContacts, i+1, telContacts, i);
+                            for (int i = id[j]; i < lastEmptyCell && lastEmptyCell < events.length; i++) {
+                                copyOneContactToAnother(events, i + 1, events, i);
+                                events[i][INDEXCELL] = Integer.toString(i);
                                 isAnythingDeleted = true;
                             }
-                            for(int i=j+1;i<id.length;i++){
-                                if(id[j]<id[i]){
-                                    id[i]=id[i]-1;
+                            for (int i = j + 1; i < id.length; i++) {
+                                if (id[j] < id[i]) {
+                                    id[i] = id[i] - 1;
                                 }
                             }
-                        }else{
+                        } else {
                             System.out.println("Incorrect index!");
                             break;
                         }
 
                         if (lastEmptyCell > 0) {
 
-                            telContacts[lastEmptyCell - 1][NAMECELL] = null; //new notion for students to remember: null
-                            telContacts[lastEmptyCell - 1][SURNAMECELL] = null; //new notion for students to remember: null
-                            telContacts[lastEmptyCell - 1][TELCELL] = null; //new notion for students to remember: null
-                            telContacts[lastEmptyCell - 1][EMAILCELL] = null; //new notion for students to remember: null
-                            telContacts[lastEmptyCell - 1][PATNAMECELL] = null;
-                            telContacts[lastEmptyCell - 1][MATNAMECELL] = null;
-                            telContacts[lastEmptyCell - 1][ADDRESSCELL] = null;
+                            events[lastEmptyCell - 1][INDEXCELL] = null;
+                            events[lastEmptyCell - 1][DATECELL] = null;
+                            events[lastEmptyCell - 1][NAMECELL] = null;
+                            events[lastEmptyCell - 1][TYPECELL] = null;
+                            events[lastEmptyCell - 1][GUESTCELL] = null;
+                            events[lastEmptyCell - 1][PLACECELL] = null;
 
                             isAnythingDeleted = true;
 
@@ -265,246 +272,278 @@ public class NewStep9 {
                         System.out.println("Deleted entry id#=" + id + ".");
                     }
 
+                    if (lastEmptyCell == (events.length - 2 * EXTSIZE)) {
 
-
-                    //MODIFICATION - STEP 5 - END
-
-                    //MODIFICATION - STEP 6 - START
-                    //decrease array size if too many cells are empty
-                    if (lastEmptyCell == (telContacts.length - 2 * EXTSIZE)) {
-
-                        String[][] tmp = new String[lastEmptyCell
-                                + EXTSIZE][TOTALCOLUMNS]; //MODIFICATION IN: STEP 6
+                        String[][] tmp = new String[lastEmptyCell + EXTSIZE][TOTALCOLUMNS];
 
                         for (int i = 0; i < lastEmptyCell; i++) {
-
-                            //MODIFICATION - STEP 8 - START
-                            copyOneContactToAnother(telContacts, i, tmp, i);
-                            //MODIFICATION - STEP 8 - END
+                            copyOneContactToAnother(events, i, tmp, i);
                         }
-
-                        telContacts = tmp;
+                        events = tmp;
                     }
-
-                    //MODIFICATION - STEP 6 - END
-
                     break;
-
-
                 }
                 case "show": {
-                    if(lastEmptyCell==0){
-                        System.out.println("Not find telContacts!");
+                    if (lastEmptyCell == 0) {
+                        System.out.println("Not find events!");
                         break;
                     }
-                    //MODIFICATION - STEP 2 - START
-                    //sort before showing
-                    System.out.println();
-                    System.out.println("Sort by:");
-                    System.out.println("(name) Sort by name");
-                    System.out.println("(surname) Sort by surname");
-                    System.out.println("(tel) Sort by tel");
-                    System.out.println("(email) Sort by email");
-                    System.out.println("(paternal) Sort by surname");
-                    System.out.println("(maternal) Sort by tel");
-                    System.out.println("(address) Sort by email");
-                    System.out.println();
-                    System.out.println("Sort by?:");
-                    String field = scanner.nextLine();
-                    System.out.println();
-                    System.out.println("Ascending or descending?");
-                    System.out.println("(asc) Ascending");
-                    System.out.println("(desc) Descending");
-                    System.out.println();
-                    String order = scanner.nextLine();
-                    System.out.println();
 
-                    System.out.println("Showing all contacts:");
-                    String[][] sortedTelContacts = new String[lastEmptyCell][TOTALCOLUMNS
-                            + 1]; //MODIFICATION IN: STEP 6
+                    System.out.println("Showing all events:");
+                    String[][] sortedEvents = new String[lastEmptyCell][TOTALCOLUMNS];
 
                     for (int i = 0; i < lastEmptyCell; i++) {
-
-                        //MODIFICATION - STEP 8 - START
-                        copyOneContactToAnother(telContacts, i, sortedTelContacts, i);
-                        sortedTelContacts[i][TOTALCOLUMNS] = "" + i;
-                        //MODIFICATION - STEP 8 - END
-
+                        copyOneContactToAnother(events, i, sortedEvents, i);
                     }
 
-                    int fieldIndex = 0;
 
-                    switch (field) {
-                        case "name": {
-                            fieldIndex = NAMECELL;
-                            break;
-                        }
-                        case "surname": {
-                            fieldIndex = SURNAMECELL;
-                            break;
-                        }
-                        case "tel": {
-                            fieldIndex = TELCELL;
-                            break;
-                        }
-                        case "email": {
-                            fieldIndex = EMAILCELL;
-                            break;
-                        }
-                        case "paternal": {
-                            fieldIndex = PATNAMECELL;
-                            break;
-                        }
-                        case "maternal": {
-                            fieldIndex = MATNAMECELL;
-                            break;
-                        }
-                        case "address": {
-                            fieldIndex = ADDRESSCELL;
-                            break;
-                        }
-                        default: //do nothing
-                    }
+                    for (int i = 0; i < sortedEvents.length; i++) {
+                        for (int j = 1; j < sortedEvents.length; j++) {
+                            Date date1 = new SimpleDateFormat("dd.MM.yyyy").parse(sortedEvents[j - 1][DATECELL]);
+                            Date date2 = new SimpleDateFormat("dd.MM.yyyy").parse(sortedEvents[j][DATECELL]);
 
-                    if (order.equalsIgnoreCase("asc")) {
-                        for (int i = 0; i < sortedTelContacts.length; i++) {
-                            for (int j = 1; j < sortedTelContacts.length; j++) {
-                                // Hint: need to explain str.compareToIgnoreCase() function
-                                if (sortedTelContacts[j - 1][fieldIndex]
-                                        .compareToIgnoreCase(sortedTelContacts[j][fieldIndex]) > 0) {
-                                    //This can be of course achieved easier through references, but not to confuse with a new terms we do like this
+                            if (date1.after(date2)) {
+                                String[][] tmpContact = new String[1][TOTALCOLUMNS];
 
-                                    //MODIFICATION - STEP 8 - START
-
-                                    String[][] tmpContact = new String[1][TOTALCOLUMNS+1];
-
-                                    copyOneContactToAnother(sortedTelContacts, j-1, tmpContact, 0);
-                                    copyOneContactToAnother(sortedTelContacts, j, sortedTelContacts, j-1);
-                                    copyOneContactToAnother(tmpContact, 0, sortedTelContacts, j);
-
-                                    //MODIFICATION - STEP 8 - END
-
-                                }
-                            }
-                        }
-                    } else if (order.equalsIgnoreCase("desc")) {
-                        for (int i = 0; i < sortedTelContacts.length; i++) {
-                            for (int j = 1; j < sortedTelContacts.length; j++) {
-                                // Hint: need to explain str.compareToIgnoreCase() function
-                                if (sortedTelContacts[j - 1][fieldIndex]
-                                        .compareToIgnoreCase(sortedTelContacts[j][fieldIndex]) < 0) {
-                                    //This can be of course achieved easier through references, but not to confuse with a new terms we do like this
-
-                                    //MODIFICATION - STEP 8 - START
-
-                                    String[][] tmpContact = new String[1][TOTALCOLUMNS+1];
-
-                                    copyOneContactToAnother(sortedTelContacts, j-1, tmpContact, 0);
-                                    copyOneContactToAnother(sortedTelContacts, j, sortedTelContacts, j-1);
-                                    copyOneContactToAnother(tmpContact, 0, sortedTelContacts, j);
-
-                                    //MODIFICATION - STEP 8 - END
-
-                                }
+                                copyOneContactToAnother(sortedEvents, j - 1, tmpContact, 0);
+                                copyOneContactToAnother(sortedEvents, j, sortedEvents, j - 1);
+                                copyOneContactToAnother(tmpContact, 0, sortedEvents, j);
                             }
                         }
                     }
-                    //MODIFICATION - STEP 2 - END
-
                     for (int i = 0; i < lastEmptyCell; i++) {
-                        System.out.print("#" + sortedTelContacts[i][TOTALCOLUMNS] + ":"); //MODIFICATION
-                        System.out.print(sortedTelContacts[i][NAMECELL] + ", ");
-                        System.out.print(sortedTelContacts[i][SURNAMECELL] + ", ");
-                        System.out.print(sortedTelContacts[i][TELCELL] + ", ");
-                        System.out.print(sortedTelContacts[i][EMAILCELL] + ",");
-                        System.out.print(sortedTelContacts[i][PATNAMECELL] + ", ");
-                        System.out.print(sortedTelContacts[i][MATNAMECELL] + ", ");
-                        System.out.print(sortedTelContacts[i][ADDRESSCELL] + ".");
+                        System.out.print("# " + sortedEvents[i][INDEXCELL] + " ");
+                        System.out.print(sortedEvents[i][DATECELL] + ", ");
+                        System.out.print(sortedEvents[i][NAMECELL] + ", ");
+                        System.out.print(sortedEvents[i][TYPECELL] + ",");
+                        System.out.print(sortedEvents[i][GUESTCELL] + ", ");
+                        System.out.print(sortedEvents[i][PLACECELL]);
                         System.out.println();
                     }
 
                     break;
                 }
+                case "search": {
+                    if (lastEmptyCell == 0) {
+                        System.out.println("Not find events!");
+                        break;
+                    }
+
+                    System.out.println("Enter search keyword:");
+
+                    String searchKeyword = scanner.nextLine();
+
+
+                    String[][] foundEvents = searchEvents(events, lastEmptyCell, searchKeyword);
+
+                    showEvents(foundEvents);
+
+                    break;
+                }
                 case "exit": {
-                    System.out.println("Exiting TelBookApplication...");
+                    System.out.println("Exiting Calendar...");
                     return;
                 }
 
-            }
 
+            }
         }
 
     }
 
 
-    private static void copyOneContactToAnother(String[][] fromContact, int fromContactIndex, String[][] toContact, int toContactIndex) {
+    public static void showMonth(String day, String month) {
+        String[][] January = {{"    ", "    ", "    ", "    ", "  1 ", "  2 ", "  3 "},
+                {"  4 ", "  5 ", "  6 ", "  7 ", "  8 ", "  9 ", " 10 "},
+                {" 11 ", " 12 ", " 13 ", " 14 ", " 15 ", " 16 ", " 17 "},
+                {" 18 ", " 19 ", " 20 ", " 21 ", " 22 ", " 23 ", " 24 "},
+                {" 25 ", " 26 ", " 27 ", " 28 ", " 29 ", " 30 ", " 31 "}};
+        String[][] February = {{"  1 ", "  2 ", "  3 ", "  4 ", "  5 ", "  6 ", "  7 "},
+                {"  8 ", "  9 ", " 10 ", " 11 ", " 12 ", " 13 ", " 14 "},
+                {" 15 ", " 16 ", " 17 ", " 18 ", " 19 ", " 20 ", " 21 "},
+                {" 22 ", " 23 ", " 24 ", " 25 ", " 26 ", " 27 ", " 28 "}};
+        String[][] March = {{"  1 ", "  2 ", "  3 ", "  4 ", "  5 ", "  6 ", "  7 "},
+                {"  8 ", "  9 ", " 10 ", " 11 ", " 12 ", " 13 ", " 14 "},
+                {" 15 ", " 16 ", " 17 ", " 18 ", " 19 ", " 20 ", " 21 "},
+                {" 22 ", " 23 ", " 24 ", " 25 ", " 26 ", " 27 ", " 28 "},
+                {" 29 ", " 30 ", " 31 "}};
+        String[][] April = {{"    ", "    ", "    ", "  1 ", "  2 ", "  3 ", "  4 "},
+                {"  5 ", "  6 ", "  7 ", "  8 ", "  9 ", " 10 ", " 11 "},
+                {" 12 ", " 13 ", " 14 ", " 15 ", " 16 ", " 17 ", " 18 "},
+                {" 19 ", " 20 ", " 21 ", " 22 ", " 23 ", " 24 ", " 25 "},
+                {" 26 ", " 27 ", " 28 ", " 29 ", " 30 "}};
+        String[][] May = {{"    ", "    ", "    ", "    ", "    ", "  1 ", "  2 "},
+                {"  3 ", "  4 ", "  5 ", "  6 ", "  7 ", "  8 ", "  9 "},
+                {" 10 ", " 11 ", " 12 ", " 13 ", " 14 ", " 15 ", " 16 "},
+                {" 17 ", " 18 ", " 19 ", " 20 ", " 21 ", " 22 ", " 23 "},
+                {" 24 ", " 25 ", " 26 ", " 27 ", " 28 ", " 29 ", " 30 "},
+                {" 31 "}};
+        String[][] June = {{"    ", "  1 ", "  2 ", "  3 ", "  4 ", "  5 ", "  6 "},
+                {"  7 ", "  8 ", "  9 ", " 10 ", " 11 ", " 12 ", " 13 "},
+                {" 14 ", " 15 ", " 16 ", " 17 ", " 18 ", " 19 ", " 20 "},
+                {" 21 ", " 22 ", " 23 ", " 24 ", " 25 ", " 26 ", " 27 "},
+                {" 28 ", " 29 ", " 30 "}};
+        String[][] July = {{"    ", "    ", "    ", "  1 ", "  2 ", "  3 ", "  4 "},
+                {"  5 ", "  6 ", "  7 ", "  8 ", "  9 ", " 10 ", " 11 "},
+                {" 12 ", " 13 ", " 14 ", " 15 ", " 16 ", " 17 ", " 18 "},
+                {" 19 ", " 20 ", " 21 ", " 22 ", " 23 ", " 24 ", " 25 "},
+                {" 26 ", " 27 ", " 28 ", " 29 ", " 30 ", " 31 "}};
+        String[][] August = {{"    ", "    ", "    ", "    ", "    ", "    ", "  1 "},
+                {"  2 ", "  3 ", "  4 ", "  5 ", "  6 ", "  7 ", "  8 "},
+                {"  9 ", " 10 ", " 11 ", " 12 ", " 13 ", " 14 ", " 15 "},
+                {" 16 ", " 17 ", " 18 ", " 19 ", " 20 ", " 21 ", " 22 "},
+                {" 23 ", " 24 ", " 25 ", " 26 ", " 27 ", " 28 ", " 29 "},
+                {" 30 ", " 31 "}};
+        String[][] September = {{"    ", "    ", "  1 ", "  2 ", "  3 ", "  4 ", "  5 "},
+                {"  6 ", "  7 ", "  8 ", "  9 ", " 10 ", " 11 ", " 12 "},
+                {" 13 ", " 14 ", " 15 ", " 16 ", " 17 ", " 18 ", " 19 "},
+                {" 20 ", " 21 ", " 22 ", " 23 ", " 24 ", " 25 ", " 26 "},
+                {" 27 ", " 28 ", " 29 ", " 30 "}};
+        String[][] October = {{"    ", "    ", "    ", "    ", "  1 ", "  2 ", "  3 "},
+                {"  4 ", "  5 ", "  6 ", "  7 ", "  8 ", "  9 ", " 10 "},
+                {" 11 ", " 12 ", " 13 ", " 14 ", " 15 ", " 16 ", " 17 "},
+                {" 18 ", " 19 ", " 20 ", " 21 ", " 22 ", " 23 ", " 24 "},
+                {" 25 ", " 26 ", " 27 ", " 28 ", " 29 ", " 30 ", " 31 "}};
+        String[][] November = {{"  1 ", "  2 ", "  3 ", "  4 ", "  5 ", "  6 ", "  7 "},
+                {"  8 ", "  9 ", " 10 ", " 11 ", " 12 ", " 13 ", " 14 "},
+                {" 15 ", " 16 ", " 17 ", " 18 ", " 19 ", " 20 ", " 21 "},
+                {" 22 ", " 23 ", " 24 ", " 25 ", " 26 ", " 27 ", " 28 "},
+                {" 29 ", " 30 "}};
+        String[][] December = {{"    ", "    ", "  1 ", "  2 ", "  3 ", "  4 ", "  5 "},
+                {"  6 ", "  7 ", "  8 ", "  9 ", " 10 ", " 11 ", " 12 "},
+                {" 13 ", " 14 ", " 15 ", " 16 ", " 17 ", " 18 ", " 19 "},
+                {" 20 ", " 21 ", " 22 ", " 23 ", " 24 ", " 25 ", " 26 "},
+                {" 27 ", " 28 ", " 29 ", " 30 ", " 31 "}};
 
-        toContact[toContactIndex][NAMECELL] = fromContact[fromContactIndex][NAMECELL];
-        toContact[toContactIndex][SURNAMECELL] = fromContact[fromContactIndex][SURNAMECELL];
-        toContact[toContactIndex][TELCELL] = fromContact[fromContactIndex][TELCELL];
-        toContact[toContactIndex][EMAILCELL] = fromContact[fromContactIndex][EMAILCELL];
-        toContact[toContactIndex][PATNAMECELL] = fromContact[fromContactIndex][PATNAMECELL];
-        toContact[toContactIndex][MATNAMECELL] = fromContact[fromContactIndex][MATNAMECELL];
-        toContact[toContactIndex][ADDRESSCELL] = fromContact[fromContactIndex][ADDRESSCELL];
+
+        String[][] monthToday;
+        switch (month) {
+            case "Jan":
+                System.out.println("           JANUARY");
+                monthToday = January;
+                printMonth(monthToday, day);
+                break;
+            case "Feb":
+                System.out.println("           FEBRUARY");
+                monthToday = February;
+                printMonth(monthToday, day);
+                break;
+            case "Mar":
+                System.out.println("            MARCH");
+                monthToday = March;
+                printMonth(monthToday, day);
+                break;
+            case "Apr":
+                System.out.println("            APRIL");
+                monthToday = April;
+                printMonth(monthToday, day);
+                break;
+            case "May":
+                System.out.println("             MAY");
+                monthToday = May;
+                printMonth(monthToday, day);
+                break;
+            case "Jun":
+                System.out.println("            JUNE");
+                monthToday = June;
+                printMonth(monthToday, day);
+                break;
+            case "Jul":
+                System.out.println("            JULY");
+                monthToday = July;
+                printMonth(monthToday, day);
+                break;
+            case "Aug":
+                System.out.println("           AUGUST");
+                monthToday = August;
+                printMonth(monthToday, day);
+                break;
+            case "Sep":
+                System.out.println("          SEPTEMBER");
+                monthToday = September;
+                printMonth(monthToday, day);
+                break;
+            case "Oct":
+                System.out.println("           OCTOBER");
+                monthToday = October;
+                printMonth(monthToday, day);
+                break;
+            case "Nov":
+                System.out.println("          NOVEMBER");
+                monthToday = November;
+                printMonth(monthToday, day);
+                break;
+            case "Dec":
+                System.out.println("          DECEMBER");
+                monthToday = December;
+                printMonth(monthToday, day);
+                break;
+            default:
+                System.out.println("Incorrect month");
+        }
+
 
     }
 
-    private static void showTelContacts(String[][] telContacts) {
-
-        if (telContacts != null && telContacts.length > 0) {
-            for (int i = 0; i < telContacts.length; i++) {
-                for (int j = 0; j < telContacts[0].length; j++) {
-                    System.out.print(telContacts[i][j]);
-                    System.out.print((j == telContacts[0].length - 1) ? ".\n" : ", ");
+    public static void printMonth(String[][] monthToday, String day) {
+        for (int i = 0; i < monthToday.length; i++) {
+            for (int j = 0; j < monthToday[i].length; j++) {
+                if (monthToday[i][j].trim().equals(day) || ("0" + monthToday[i][j].trim()).equals(day)) {
+                    if (day.trim().length() == 2 && day.trim().charAt(0) != '0') {
+                        System.out.print("[" + day + "]");
+                    } else {
+                        System.out.print("[ " + monthToday[i][j].trim() + "]");
+                    }
+                } else {
+                    System.out.print(monthToday[i][j]);
                 }
             }
-        }else{
-            System.out.println("NOT FOUND!");
+            System.out.println();
         }
-
     }
 
-    private static String[][] searchTelContacts(String[][] telContacts, int lastEmptyCell,
-                                                String searchKeyword) {
+    private static void copyOneContactToAnother(String[][] fromEvent, int fromEventIndex, String[][] toEvent, int toEventIndex) {
 
+        toEvent[toEventIndex][INDEXCELL] = fromEvent[fromEventIndex][INDEXCELL];
+        toEvent[toEventIndex][DATECELL] = fromEvent[fromEventIndex][DATECELL];
+        toEvent[toEventIndex][NAMECELL] = fromEvent[fromEventIndex][NAMECELL];
+        toEvent[toEventIndex][TYPECELL] = fromEvent[fromEventIndex][TYPECELL];
+        toEvent[toEventIndex][GUESTCELL] = fromEvent[fromEventIndex][GUESTCELL];
+        toEvent[toEventIndex][PLACECELL] = fromEvent[fromEventIndex][PLACECELL];
+    }
 
-        String[][] foundTelContacts = new String[lastEmptyCell][telContacts[0].length + 1];
+    private static String[][] searchEvents(String[][] events, int lastEmptyCell, String searchKeyword) {
+        String[][] foundEvent = new String[lastEmptyCell][events[0].length];
 
-        int foundTelContactsCounter = 0;
+        int foundEventsCounter = 0;
 
         for (int i = 0; i < lastEmptyCell; i++) {
 
-            for (int j = 0; j < telContacts[i].length; j++) {
+            for (int j = 0; j < events[i].length; j++) {
 
-                //MODIFICATION - STEP 8 - START
-                if (contains(telContacts[i][j], searchKeyword)||newContains(telContacts[i][j], searchKeyword)) {
-                    //MODIFICATION - STEP 8 - END
+                if (contains(events[i][j], searchKeyword) || newContains(events[i][j], searchKeyword)) {
+                System.out.println("found");
 
-                    foundTelContacts[foundTelContactsCounter][0] = "#" + i;
-
-                    for (int k = 1; k < foundTelContacts[foundTelContactsCounter].length; k++) {
-                        foundTelContacts[foundTelContactsCounter][k] = telContacts[i][k - 1];
+                    for (int k = 0; k < foundEvent[foundEventsCounter].length; k++) {
+                        foundEvent[foundEventsCounter][k] = events[i][k];
                     }
-
-                    foundTelContactsCounter++;
-
+                    foundEventsCounter++;
                     break;
                 }
             }
 
         }
+        if (foundEventsCounter > 0) {
 
-        if (foundTelContactsCounter > 0) {
+            String[][] resultEvents = new String[foundEventsCounter][foundEvent[0].length];
 
-            String[][] resultTelContacts = new String[foundTelContactsCounter][foundTelContacts[0].length];
-
-            for (int i = 0; i < resultTelContacts.length; i++) {
-                for (int j = 0; j < resultTelContacts[0].length; j++) {
-                    resultTelContacts[i][j] = foundTelContacts[i][j];
+            for (int i = 0; i < resultEvents.length; i++) {
+                for (int j = 0; j < resultEvents[0].length; j++) {
+                    resultEvents[i][j] = foundEvent[i][j];
                 }
             }
 
-            return resultTelContacts;
+            return resultEvents;
 
         } else {
 
@@ -513,7 +552,6 @@ public class NewStep9 {
         }
     }
 
-    //MODIFICATION - STEP 8 - START
     private static boolean contains(String check, String input) {
 
         for(int i=0;i<check.length();i++){
@@ -526,6 +564,7 @@ public class NewStep9 {
                         break;
                     }
                     if(a==input.length()-1){
+                        System.out.println("found cont");
                         return true;
                     }else if(i+a+1>check.length()-1){
                         return false;
@@ -549,7 +588,6 @@ public class NewStep9 {
                 }else{
                     checkpoint++;
                     i++;
-                    System.out.println("Check 1");
                 }
                 if(i==input.length()){
                     break;
@@ -557,6 +595,7 @@ public class NewStep9 {
             }
 
             if(input.length()-inCase.length()<3&&checkpoint<3) {
+                System.out.println("found newCont 1");
                 return true;
             }else{
                 return false;
@@ -569,7 +608,6 @@ public class NewStep9 {
                 }else{
                     checkpoint++;
                     i++;
-                    System.out.println("Check 1");
                 }
                 if(i==inCase.length()){
                     break;
@@ -577,10 +615,47 @@ public class NewStep9 {
             }
 
             if(inCase.length()-input.length()<3&&checkpoint<3) {
+                System.out.println("found newCont 2");
                 return true;
             }else{
                 return false;
             }
         }
     }
+
+    private static void showEvents(String[][] events) {
+
+        if ( events!= null && events.length > 0) {
+            for (int i = 0; i < events.length; i++) {
+                System.out.print("# " + events[i][INDEXCELL] + " ");
+                System.out.print(events[i][DATECELL] + ", ");
+                System.out.print(events[i][NAMECELL] + ", ");
+                System.out.print(events[i][TYPECELL] + ",");
+                System.out.print(events[i][GUESTCELL] + ", ");
+                System.out.print(events[i][PLACECELL]);
+                System.out.println();
+            }
+        }else{
+            System.out.println("NOT FOUND!");
+        }
+
+    }
+
+    private static int eventToday(String [][] events, int lastEmp, String monthToday, String day, String year) throws ParseException {
+        int counter=0;
+
+        for(int i=0;i<=lastEmp;i++){
+
+            Date date=new Date();
+            Date date1 = new SimpleDateFormat("dd.MM.yyyy").parse(String.valueOf(date));
+            Date date2 = new SimpleDateFormat("dd.MM.yyyy").parse(events[i][DATECELL]);
+            if(date2.before(date1) ){
+                counter++;
+            }
+        }
+
+        return counter;
+    }
 }
+
+
