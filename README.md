@@ -1,5 +1,7 @@
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Scanner;
 
@@ -31,9 +33,9 @@ public class Calendar {
             showMonth(today[2], today[1]);
             System.out.println();
 
-            int num = eventToday(events,lastEmptyCell,today[2],today[1],today[5]);
+            int num = eventToday(events,lastEmptyCell);
 
-            System.out.println("Today you have "+num+" events");
+            System.out.println("Tomorrow you have "+num+" events");
 
             System.out.println("Select operation:");
             System.out.println("(add) Add event");
@@ -641,20 +643,25 @@ public class Calendar {
 
     }
 
-    private static int eventToday(String [][] events, int lastEmp, String monthToday, String day, String year) throws ParseException {
+    private static int eventToday(String [][] events, int lastEmp){
+
         int counter=0;
+        LocalDate ld2 = plusDate();
 
         for(int i=0;i<=lastEmp;i++){
 
-            Date date=new Date();
-            Date date1 = new SimpleDateFormat("dd.MM.yyyy").parse(String.valueOf(date));
-            Date date2 = new SimpleDateFormat("dd.MM.yyyy").parse(events[i][DATECELL]);
-            if(date2.before(date1) ){
-                counter++;
+            String str = events[i][DATECELL];
+            String formattedDate2 = ld2.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+            if(formattedDate2.equals(str)){
+               counter++;
             }
-        }
 
+        }
         return counter;
+    }
+
+    public static LocalDate plusDate(){
+        return LocalDate.now().plusDays(1);
     }
 }
 
