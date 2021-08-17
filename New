@@ -9,18 +9,16 @@ public class Coins{
 
         int[][] coins = getCoins();
         int[][] walls = getWalls();
-        int scoutPocketCoinsCounter = 0;
+        //int scoutPocketCoinsCounter = 0;
 
         int robotPosCol = 2, robotPosRow = 6;
 
-        Scanner scanner = new Scanner(System.in);
 
         int movesCounter = 0;
 
         int robotStart=0;
 
         int[] startPosition={3,3};
-
 
         while (true) {
 
@@ -54,16 +52,17 @@ public class Coins{
 
                 robotPosCol = calculateNewPosCol(robotPosCol, yourMove);
                 robotPosRow = calculateNewPosRow(robotPosRow, yourMove);
-
-                int indexOfCoin = isCoordinateInsideAnyObject(robotPosRow, robotPosCol, visibleCoins);
+                
+                int indexOfCoin = isCoordinateInsideAnyObject(robotPosRow, robotPosCol, coins);
 
                 if (indexOfCoin >= 0) {
                     coins = pickCoin(indexOfCoin, coins);
-                    scoutPocketCoinsCounter++;
+                    //scoutPocketCoinsCounter++;
                 }
 
             } else {
                 System.out.println("This move is not possible! Your move was: " + yourMove);
+
             }
 
             movesCounter++;
@@ -98,8 +97,37 @@ public class Coins{
     private static String thinkWhatsYourNextMove(int[][] visibleCoins, int[][] visibleWalls,
                                                  int robotPosCol, int robotPosRow, int fieldCols, int fieldRows) {
 
+        if(visibleCoins.length>0){
+            if(robotPosCol<visibleCoins[0][1]){
+                return "d";
+            }else if(robotPosCol>visibleCoins[0][1]){
+                return "a";
+            }else if(robotPosRow<visibleCoins[0][0]){
+                return "s";
+            }else if(robotPosRow>visibleCoins[0][0]){
+                return "w";
+            }
+        }
+
+        if(visibleWalls.length>0){
+            if(robotPosRow==visibleWalls[0][0]){
+                return "d";
+            }
+        }
+
+        if(robotPosRow%2!=0&&robotPosCol<fieldCols-4){
+            return "d";
+        }else if(robotPosRow%2==0&&robotPosCol>3){
+            return "a";
+        }else if(robotPosCol==fieldCols-4||robotPosCol==3){
+            return "s";
+        }
+
+
+
+        return null;
+
         //TODO
-        return "a";
     }
 
     private static int[][] getVisibleObjects(int[][] allObjects, int robotPosRow, int robotPosCol) {
@@ -110,15 +138,12 @@ public class Coins{
 
         boolean[] visibleObjectsIndexes = new boolean[allObjects.length];
 
-        for (int r = robotPosRow - 2; r < robotPosRow + 2; r++) {
-            for (int c = robotPosCol - 2; c < robotPosCol + 2; c++) {
+        for (int r = robotPosRow - 2; r <= robotPosRow + 2; r++) {
+            for (int c = robotPosCol - 2; c <= robotPosCol + 2; c++) {
 
                 for (int i = 0; i < allObjects.length; i++) {
 
-                    if (isCoordinateInsideObject(
-                            r, c,
-                            allObjects[i][0], allObjects[i][1],
-                            allObjects[i][2], allObjects[i][3])) {
+                    if (isCoordinateInsideObject(r, c, allObjects[i][0], allObjects[i][1], allObjects[i][2], allObjects[i][3])) {
 
                         visibleObjectsIndexes[i] = true;
                         break;
@@ -142,6 +167,7 @@ public class Coins{
         for (int i = 0, j = 0; i < visibleObjectsIndexes.length; i++) {
             if (visibleObjectsIndexes[i] == true) {
                 visibleObjects[j] = allObjects[i];
+
                 j++;
             }
         }
@@ -206,7 +232,7 @@ public class Coins{
                 } else if (isCoordinateInsideAnyObject(r, c, coins) >= 0) {
                     System.out.print('$');
                 } else {
-                    if (isCoordinateInsideObject(r, c, robotPosRow - 2, robotPosCol - 2, robotPosRow + 2,
+                    if (isCoordinateInsideObjectStart(r, c, robotPosRow - 2, robotPosCol - 2, robotPosRow + 2,
                             robotPosCol + 2)) {
                         System.out.print(' ');
                     } else {
@@ -237,8 +263,14 @@ public class Coins{
 
     private static boolean isCoordinateInsideObject(int r, int c, int r1, int c1, int height,
                                                     int width) {
-//        return r >= r1 && r <= (r1 + height - 1) && c >= c1 && c <= (c1 + width - 1);
-        return r >= r1 && r <= (r1 + height - 1) && c >= c1 && c <= (c1 + width);
+        return r >= r1 && r <= (r1 + height - 1) && c >= c1 && c <= (c1 + width - 1);
+
+    }
+
+    private static boolean isCoordinateInsideObjectStart(int r, int c, int r1, int c1, int height,
+                                                    int width) {
+
+        return r >= r1 && r <=height && c >= c1 && c <= width;
     }
 
 
@@ -257,6 +289,7 @@ public class Coins{
                 return robotPosRow - 1;
             case "s":
                 return robotPosRow + 1;
+
             default:
                 return robotPosRow;
         }
@@ -274,14 +307,4 @@ public class Coins{
         }
     }
 
-    public static int goToStart(int rPos, int startPos){
-        if(rPos<startPos) {
-            return rPos++;
-        }else if(rPos>startPos){
-            return rPos--;
-        }
-        return 0;
-    }
-
 }
-
