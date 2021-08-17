@@ -52,7 +52,7 @@ public class Coins{
 
                 robotPosCol = calculateNewPosCol(robotPosCol, yourMove);
                 robotPosRow = calculateNewPosRow(robotPosRow, yourMove);
-                
+
                 int indexOfCoin = isCoordinateInsideAnyObject(robotPosRow, robotPosCol, coins);
 
                 if (indexOfCoin >= 0) {
@@ -62,6 +62,7 @@ public class Coins{
 
             } else {
                 System.out.println("This move is not possible! Your move was: " + yourMove);
+
 
             }
 
@@ -109,11 +110,7 @@ public class Coins{
             }
         }
 
-        if(visibleWalls.length>0){
-            if(robotPosRow==visibleWalls[0][0]){
-                return "d";
-            }
-        }
+
 
         if(robotPosRow%2!=0&&robotPosCol<fieldCols-4){
             return "d";
