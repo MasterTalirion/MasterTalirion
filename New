@@ -100,6 +100,8 @@ public class Coins{
                                                  int robotPosCol, int robotPosRow, int fieldCols, int fieldRows) {
 
 
+
+
         if(visibleCoins.length>0){
             if(robotPosCol<visibleCoins[0][1]){
                 return "d";
@@ -114,22 +116,23 @@ public class Coins{
 
 
 
-        if(robotPosRow%2!=0&&robotPosCol<fieldCols-4){
-            if(isCoordinateInsideAnyObject(robotPosRow, robotPosCol+1, visibleWalls)>=0){
-                return "s";
-            }
+        if(((robotPosRow-3)%5==0&&robotPosCol<fieldCols-4&&(robotPosRow-3)%2==0)
+                ||robotPosRow==fieldRows-3&&robotPosRow%10==0){
             return "d";
-        }else if(robotPosRow%2==0&&robotPosCol>3){
+        }else if(((robotPosRow-3)%5==0&&robotPosCol>3&&(robotPosRow-3)%2!=0)
+                ||robotPosRow==fieldRows-3&&robotPosRow%10!=0){
             return "a";
         }else if(robotPosCol==fieldCols-4||robotPosCol==3){
             return "s";
+        }else{
+            return "w";
         }
 
 
 
-        return null;
 
-        //TODO
+
+
     }
 
     private static int[][] getVisibleObjects(int[][] allObjects, int robotPosRow, int robotPosCol) {
@@ -277,11 +280,11 @@ public class Coins{
 
 
     private static int[][] getWalls() {
-        return new int[][]{{2, 11, 2, 2}, {13, 14, 6, 1}};
+        return new int[][]{{10, 10, 2, 2}, {13, 14, 6, 1}};
     }
 
     private static int[][] getCoins() {
-        return new int[][]{{16, 43, 1, 1}, {6, 8, 1, 1}, {7, 8, 1, 1},};
+        return new int[][]{{17, 41, 1, 1}, {6, 8, 1, 1}, {7, 8, 1, 1},};
     }
 
     private static int calculateNewPosRow(int robotPosRow, String yourMove) {
