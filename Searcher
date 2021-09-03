@@ -1,0 +1,60 @@
+public class SearchMachine {
+    public static void main (String [] args){
+        String text = "go go goooo";
+        String inputText="good";
+        int percent=40;
+
+        int [][]findText=searchText(text, inputText,percent);
+
+        if(findText!=null){
+            for(int i = 0; i< findText.length;i++){
+                System.out.print("[");
+
+                    System.out.print(findText[i][0]+", "+findText[i][1]);
+
+                System.out.print("] ");
+            }
+        }else{
+            System.out.print("NoT FoUnD!");
+        }
+
+    }
+
+    public static int[][] searchText(String text, String inputText, int percent){
+        int percentOneSim=100/inputText.length();
+        int perWord=0;
+
+        int [][] findWords=new int [5][2];
+        int indexForArr=0;
+        for(int i=0; i<text.length();i++){
+            for(int j=0; j<inputText.length();j++){
+                if(text.charAt(i)==inputText.charAt(j)){
+                    perWord=perWord+percentOneSim;
+                    i++;
+                }else if(perWord>percent){
+                    findWords[indexForArr][0]=i-j;
+                    findWords[indexForArr][1]=perWord;
+                    indexForArr++;
+                    perWord=0;
+                    break;
+                }else{
+                    break;
+                }
+            }
+        }
+
+        if(indexForArr!=0){
+            int [][] buffer=new int [indexForArr][2];
+
+            for(int i=0;i<buffer.length;i++){
+                for(int j=0;j<buffer[0].length;j++){
+                    buffer[i][j]=findWords[i][j];
+                }
+            }
+            return buffer;
+        }
+
+
+        return null;
+    }
+}
