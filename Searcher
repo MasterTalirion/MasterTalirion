@@ -1,64 +1,57 @@
-public class SearchMachinevrs2 {
-    public static void main (String [] args){
-        String text = "go go you to";
-        String inputText="go to";
+public class SearchMachinevrs3 {
+        public static void main (String [] args){
+            String [] text = search("I can wait until we get there, are you too?","Until we get there please keep silence, would you do that for me?");
 
-        String []inputSub;
-        String del=" ";
 
-        inputSub=inputText.split(del);
 
-        int []findText=searchText(text, inputSub);
-
-        if(findText!=null){
+            if(text!=null){
 
                 System.out.print("[");
-                for(int i=0; i< findText.length;i++){
-                    if(i< findText.length-1){
-                        System.out.print(findText[i]+", ");
+                for(int i=0; i< text.length;i++){
+                    if(i<text.length-1){
+                        System.out.print(text[i]+", ");
                     }else{
-                        System.out.print(findText[i]);
+                        System.out.print(text[i]);
                     }
                 }
                 System.out.print("] ");
-        }else{
-            System.out.print("NoT FoUnD!");
+            }else{
+                System.out.print("NoT FoUnD!");
+            }
         }
-    }
 
-    public static int[] searchText(String text, String []inputSub){
-        int buffer=0;
-        int[] search=new int [5];
-        int index=0;
+        public static String[] search(String text, String inputSub){
 
-        for(int i=0;i<inputSub.length;i++){
-            
-            for(int j=0;j<text.length();j++){
-                for(int k=0;k<inputSub[i].length()+1;k++) {
-                    if(buffer==inputSub[i].length()){
-                        search[index]=j-buffer;
-                        index++;
-                        buffer=0;
-                        break;
-                    }else if(inputSub[i].charAt(k)==text.charAt(j)) {
-                        buffer++;
-                        j++;
-                    }else{
+            String del=" ";
+
+
+            String [] inputB=inputSub.replaceAll("[^a-zA-Z ]","").toLowerCase().split(del);
+            String [] inputA=text.replaceAll("[^a-zA-Z ]","").toLowerCase().split(del);
+
+            String [] result = new String[inputA.length];
+
+            int i=0;
+
+
+
+            for(int a=0;a<inputA.length;a++){
+                for(int b=0;b<inputB.length;b++) {
+                    if (inputA[a].equals(inputB[b])) {
+                        result[i]=inputA[a];
+                        i++;
                         break;
                     }
                 }
             }
-        }
 
-        if(index!=0){
-            int [] buff=new int [index];
+            if(i!=0){
+                String [] buff=new String [i];
 
-            for(int i=0;i<buff.length;i++){
-                    buff[i]=search[i];
-
+                for(int j=0;j<buff.length;j++){
+                    buff[j]=result[j];
+                }
+                return buff;
             }
-            return buff;
+            return null;
         }
-        return null;
-    }
 }
