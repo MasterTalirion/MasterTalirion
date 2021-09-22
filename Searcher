@@ -1,57 +1,52 @@
-public class SearchMachinevrs3 {
-        public static void main (String [] args){
-            String [] text = search("I can wait until we get there, are you too?","Until we get there please keep silence, would you do that for me?");
+public class Mathen {
 
+    public static void main (String []args){
+        int [][]randoms = new int [7][4];
 
-
-            if(text!=null){
-
-                System.out.print("[");
-                for(int i=0; i< text.length;i++){
-                    if(i<text.length-1){
-                        System.out.print(text[i]+", ");
-                    }else{
-                        System.out.print(text[i]);
-                    }
-                }
-                System.out.print("] ");
-            }else{
-                System.out.print("NoT FoUnD!");
+        for(int i=0;i<randoms.length;i++){
+            for(int j=0;j<randoms[0].length;j++){
+                randoms[i][j]=(-5)+(int) (Math.random()*10);
             }
         }
 
-        public static String[] search(String text, String inputSub){
 
-            String del=" ";
-
-
-            String [] inputB=inputSub.replaceAll("[^a-zA-Z ]","").toLowerCase().split(del);
-            String [] inputA=text.replaceAll("[^a-zA-Z ]","").toLowerCase().split(del);
-
-            String [] result = new String[inputA.length];
-
-            int i=0;
-
-
-
-            for(int a=0;a<inputA.length;a++){
-                for(int b=0;b<inputB.length;b++) {
-                    if (inputA[a].equals(inputB[b])) {
-                        result[i]=inputA[a];
-                        i++;
-                        break;
-                    }
+        for(int i=0;i<randoms.length;i++){
+            System.out.print("[");
+            for(int j=0;j<randoms[0].length;j++){
+                if(randoms[i][j]<0){
+                    System.out.print(randoms[i][j]);
+                }else{
+                    System.out.print(" "+randoms[i][j]);
                 }
             }
-
-            if(i!=0){
-                String [] buff=new String [i];
-
-                for(int j=0;j<buff.length;j++){
-                    buff[j]=result[j];
-                }
-                return buff;
-            }
-            return null;
+            System.out.println(" ]");
         }
+
+        System.out.println("Index of max modul summ: "+findInd(randoms));
+
+    }
+
+
+    public static int findInd(int randoms[][]){
+        int buff = 0;
+        int max=0;
+        int index=0;
+
+        for(int i=0;i<randoms.length;i++){
+            for(int j=0;j<randoms[0].length;j++){
+                buff=Math.abs(randoms[i][j])+buff;
+            }
+            if(buff>max){
+                max=buff;
+                index=i;
+            }
+            buff=0;
+        }
+
+        return index;
+    }
+
+
+
+
 }
