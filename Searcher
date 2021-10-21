@@ -1,45 +1,475 @@
-public class Mathen {
+public class TwitterAccount extends Contact {
 
-    public static void main (String []args){
-        int [][]randoms = new int [7][4];
+    private String username;
 
-        for(int i=0;i<randoms.length;i++){
-            for(int j=0;j<randoms[0].length;j++){
-                randoms[i][j]=(-5)+(int) (Math.random()*10);
-            }
-        }
-
-        for(int i=0;i<randoms.length;i++){
-            System.out.print("[");
-            for(int j=0;j<randoms[0].length;j++){
-                if(randoms[i][j]<0){
-                    System.out.print(randoms[i][j]);
-                }else{
-                    System.out.print(" "+randoms[i][j]);
-                }
-            }
-            System.out.println(" ]");
-        }
-
-        System.out.println("Index of max modul summ: "+findInd(randoms));
-
+    public String getUsername() {
+        return username;
     }
 
-    public static int findInd(int randoms[][]){
-        int buff = 0;
-        int max=0;
-        int index=0;
-
-        for(int i=0;i<randoms.length;i++){
-            for(int j=0;j<randoms[0].length;j++){
-                buff=Math.abs(randoms[i][j])+buff;
-            }
-            if(buff>max){
-                max=buff;
-                index=i;
-            }
-            buff=0;
-        }
-        return index;
+    public void setUsername(String username) {
+        this.username = username;
     }
 }
+
+public class Birthday extends PersonalInfo {
+
+    private int day;
+    private int month;
+    private int year;
+
+    public int getDay() {
+        return day;
+    }
+
+    public void setDay(int day) {
+        if (month==1 || month==3) {
+            if (day > 0 && day < 31) {
+                this.day = day;
+            }
+        } else if (month==2) {
+            if (day > 0 && day < 28) {
+                this.day = day;
+            }
+        }
+    }
+
+    public int getMonth() {
+        return month;
+    }
+
+    public void setMonth(int month) {
+        this.month = month;
+    }
+
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+}
+
+public class TelBook {
+
+    private String owner;
+    private Page[] pages = new Page[10];
+    private int lastEmptyPageIndex = 0;
+
+    public void add(Page page) {
+        page.setPageNumber(lastEmptyPageIndex);
+        pages[lastEmptyPageIndex] = page;
+        lastEmptyPageIndex++;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public Page[] getPages() {
+        return pages;
+    }
+
+    public void setPages(Page[] pages) {
+        this.pages = pages;
+    }
+
+    public int getLastEmptyPageIndex() {
+        return lastEmptyPageIndex;
+    }
+
+    public void setLastEmptyPageIndex(int lastEmptyPageIndex) {
+        this.lastEmptyPageIndex = lastEmptyPageIndex;
+    }
+}
+
+
+public class InstagramAccount { //TODO Homework: к какому классу относится этот класс? От какого класса он должен расширяться от Contact или от PersonalInfo
+}
+
+public class Gender extends PersonalInfo {
+
+    private String type; //w, m
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+}
+
+public class Education { //TODO Homework: к какому классу относится этот класс? От какого класса он должен расширяться от Contact или от PersonalInfo
+}
+
+
+ublic class Name extends PersonalInfo {
+
+    private String firstname;
+    private String surname;
+    private String paternal;
+    private String maternal;
+    private String prefix; //Mr, Mrs, Bey, Aga, Professor
+
+    public String getFirstname() {
+        return firstname;
+    }
+
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
+
+    public String getPaternal() {
+        return paternal;
+    }
+
+    public void setPaternal(String paternal) {
+        this.paternal = paternal;
+    }
+
+    public String getMaternal() {
+        return maternal;
+    }
+
+    public void setMaternal(String maternal) {
+        this.maternal = maternal;
+    }
+
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+}
+
+
+public class Person {
+
+    private PersonalInfo[] personalInfos = new PersonalInfo[10];
+    private int lastFreeCellInPersonalInfos = 0;
+
+    private Contact[] contacts = new Contact[10];
+    private int lastFreeCellInContacts = 0;
+
+    public PersonalInfo[] getPersonalInfos() {
+        return personalInfos;
+    }
+
+    public void setPersonalInfos(PersonalInfo[] personalInfos) {
+        this.personalInfos = personalInfos;
+    }
+
+    public Contact[] getContacts() {
+        return contacts;
+    }
+
+    public void setContacts(Contact[] contacts) {
+        this.contacts = contacts;
+    }
+
+    public void addPersonalInfo(PersonalInfo personalInfo) {
+        personalInfos[lastFreeCellInPersonalInfos] = personalInfo;
+        lastFreeCellInPersonalInfos++;
+    }
+
+    public void addContact(Contact contact) {
+        contacts[lastFreeCellInContacts] = contact;
+        lastFreeCellInContacts++;
+    }
+}
+
+public class FacebookAccount extends Contact {
+
+    private String username;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+}
+
+
+public class Contact {
+}
+
+
+public class Email extends Contact {
+
+    private String username; //maxim.semenov
+    private String mailProvider; //gmail.com
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getMailProvider() {
+        return mailProvider;
+    }
+
+    public void setMailProvider(String mailProvider) {
+        this.mailProvider = mailProvider;
+    }
+}
+
+
+ublic class Profession extends PersonalInfo {
+
+    private String professionGroup; //medical
+    private String professionName; //dentist
+
+    public String getProfessionGroup() {
+        return professionGroup;
+    }
+
+    public void setProfessionGroup(String professionGroup) {
+        this.professionGroup = professionGroup;
+    }
+
+    public String getProfessionName() {
+        return professionName;
+    }
+
+    public void setProfessionName(String professionName) {
+        this.professionName = professionName;
+    }
+}
+
+
+public class MobilePhone extends Contact {
+
+    private String countryCode; //+7, +0, +1...
+    private String msisdn; //7015657645
+
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public void setCountryCode(String countryCode) {
+        this.countryCode = countryCode;
+    }
+
+    public String getMsisdn() {
+        return msisdn;
+    }
+
+    public void setMsisdn(String msisdn) {
+        this.msisdn = msisdn;
+    }
+}
+
+
+public class Page {
+
+    private int pageNumber;
+    private Person person;
+
+    public Page(Person person) {
+        this.person = person;
+    }
+
+    public int getPageNumber() {
+        return pageNumber;
+    }
+
+    public void setPageNumber(int pageNumber) {
+        this.pageNumber = pageNumber;
+    }
+
+    public Person getPerson() {
+        return person;
+    }
+
+    public void setPerson(Person person) {
+        this.person = person;
+    }
+}
+
+public class PersonalInfo {
+}
+
+
+import java.util.Scanner;
+
+public class TelephoneBookApplication {
+
+    public static void main(String[] args) {
+
+        System.out.println("Hello this is my phonebook");
+
+        Scanner scanner = new Scanner(System.in);
+
+        TelBook telBook = new TelBook();
+
+        while (true) {
+
+            System.out.println("Menu: ");
+            System.out.println("1 - Add page;");
+            System.out.println("2 - Delete page;");
+            System.out.println("3 - Show all pages;");
+
+            System.out.println("Enter option: ");
+            int optionSelected = scanner.nextInt();
+
+            if (optionSelected == 1) {
+
+                Person person = new Person();
+
+                while (true) {
+
+                    System.out.println("Select info to fill: ");
+                    System.out.println("(tel) Fill mobile phone");
+                    System.out.println("(name) Fill name");
+                    System.out.println("(birthday) Fill birthday");
+                    System.out.println("(twitter) Fill twitter account");
+                    System.out.println("(done) Exit this menu");
+
+                    String infoType = scanner.next();
+
+                    if (infoType.equals("tel")) {
+
+                        MobilePhone mobilePhone = new MobilePhone();
+
+                        System.out.println("-Mobile phone-");
+                        System.out.println("country code:");
+                        mobilePhone.setCountryCode(scanner.next());
+                        System.out.println("msisdn:");
+                        mobilePhone.setMsisdn(scanner.next());
+
+                        person.addContact(mobilePhone);
+
+                    } else if (infoType.equals("name")) {
+
+                        Name name = new Name();
+
+                        System.out.println("-Name-");
+                        System.out.println("firstname:");
+                        name.setFirstname(scanner.next());
+                        System.out.println("surname:");
+                        name.setSurname(scanner.next());
+                        System.out.println("paternalname:");
+                        name.setPaternal(scanner.next());
+                        System.out.println("maternalname:");
+                        name.setMaternal(scanner.next());
+                        System.out.println("prefix:");
+                        name.setPrefix(scanner.next());
+
+                        person.addPersonalInfo(name);
+
+                    } else if (infoType.equals("birthday")) {
+
+                        Birthday birthday = new Birthday();
+
+                        System.out.println("-Birthday-");
+                        System.out.println("day:");
+                        birthday.setDay(scanner.nextInt());
+                        System.out.println("month:");
+                        birthday.setMonth(scanner.nextInt());
+                        System.out.println("year:");
+                        birthday.setYear(scanner.nextInt());
+
+                        person.addPersonalInfo(birthday);
+
+                    } else if (infoType.equals("twitter")) {
+
+                        TwitterAccount twitter = new TwitterAccount();
+
+                        System.out.println("-Twitter-");
+                        System.out.println("username:");
+                        twitter.setUsername(scanner.next());
+
+                        person.addContact(twitter);
+
+                    } else if (...) { // TODO Homework: добавить все оставшиеся варианты объектов контактов и личных данных (не забыть про новые классы Education & InstagramAccount)
+                    } else if (...) { // TODO Homework: добавить все оставшиеся варианты объектов контактов и личных данных (не забыть про новые классы Education & InstagramAccount)
+                    } else if (infoType.equals("done")) {
+                        break;
+                    }
+                }
+
+                Page page = new Page(person);
+
+                telBook.add(page);
+
+            } else if (optionSelected == 3) {
+
+                int i = 0;
+
+                Page[] pages = telBook.getPages();
+
+                while (i < telBook.getLastEmptyPageIndex()) {
+
+                    Person person = pages[i].getPerson();
+
+                    System.out.println("TelBook current page number#: " + pages[i].getPageNumber());
+
+                    for (int j = 0; j < person.getContacts().length; j++) {
+
+                        Contact contact = person.getContacts()[j];
+
+                        if (contact instanceof MobilePhone)
+                            System.out.println(((MobilePhone) contact).getCountryCode() + " " + ((MobilePhone) contact).getMsisdn());
+                        if (contact instanceof Email)
+                            System.out.println(((Email) contact).getUsername() + "@" + ((Email) contact).getMailProvider());
+                        if (contact instanceof FacebookAccount)
+                            System.out.println(((FacebookAccount) contact).getUsername());
+
+                        //TODO Homework: добавить все оставшиеся типы объектов классов дочерних к Контактам, что сюда нужно добавить Instagram и/или Education?
+
+                    }
+
+                    for (int j = 0; j < person.getPersonalInfos().length; j++) {
+
+                        PersonalInfo pInfo = person.getPersonalInfos()[j];
+
+                        if (pInfo instanceof Name)
+                            System.out.println(((Name) pInfo).getFirstname() + " " + ((Name) pInfo).getSurname());
+                        if (pInfo instanceof Birthday)
+                            System.out.println(((Birthday) pInfo).getDay() + "/" + ((Birthday) pInfo).getMonth() + "/" + ((Birthday) pInfo).getYear());
+
+                        if (pInfo instanceof Gender) System.out.println(((Gender) pInfo).getType());
+                        if (pInfo instanceof Profession)
+                            System.out.println(((Profession) pInfo).getProfessionGroup() + "/" + ((Profession) pInfo).getProfessionName());
+
+                        //TODO Homework: добавить все оставшиеся типы объектов классов дочерних к классам Персональной Информации, что сюда нужно добавить Instagram и/или Education?
+
+                    }
+
+                    i++;
+                }
+
+            }
+        }
+
+    }
+
+}
+
+
+
+
+
+
+
+
