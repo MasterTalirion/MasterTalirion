@@ -1,4 +1,3 @@
-
 public class TwitterAccount extends Contact {
 
     private String username;
