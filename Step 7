@@ -1,0 +1,1761 @@
+public class TwitterAccount extends Contact {
+
+    private String username;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public OperationResult setUsername(String username) {
+        this.username = username;
+        return new OperationResult(true,null);
+    }
+
+    @Override
+    public String getContactAsString() {
+        return "www.twitter.com/"+username;
+    }
+}
+
+
+public class PersonalInfoNode {
+
+    private PersonalInfoNode next;
+    private PersonalInfoNode previous;
+    private PersonalInfo content;
+
+    public PersonalInfoNode(PersonalInfoNode next, PersonalInfoNode previous, PersonalInfo content) {
+        this.next = next;
+        this.previous = previous;
+        this.content = content;
+    }
+
+    public PersonalInfoNode getNext() {
+        return next;
+    }
+
+    public void setNext(PersonalInfoNode next) {
+        this.next = next;
+    }
+
+    public PersonalInfoNode getPrevious() {
+        return previous;
+    }
+
+    public void setPrevious(PersonalInfoNode previous) {
+        this.previous = previous;
+    }
+
+    public PersonalInfo getContent() {
+        return content;
+    }
+
+    public void setContent(PersonalInfo content) {
+        this.content = content;
+    }
+}
+
+
+public class PageNode {
+
+    private PageNode next;
+    private PageNode previous;
+    private Page content;
+
+    public PageNode(PageNode next, PageNode previous, Page content) {
+        this.next = next;
+        this.previous = previous;
+        this.content = content;
+    }
+
+    public PageNode getNext() {
+        return next;
+    }
+
+    public void setNext(PageNode next) {
+        this.next = next;
+    }
+
+    public PageNode getPrevious() {
+        return previous;
+    }
+
+    public void setPrevious(PageNode previous) {
+        this.previous = previous;
+    }
+
+    public Page getContent() {
+        return content;
+    }
+
+    public void setContent(Page content) {
+        this.content = content;
+    }
+}
+
+
+public class ClientWantsToExitException extends Exception {
+}
+
+
+
+public class Birthday extends PersonalInfo {
+
+    private int day;
+    private int month;
+    private int year;
+
+    public int getDay() {
+        return day;
+    }
+
+    public void setDay(int day) throws OperationException {
+        if (month==1 || month==3) {
+            if (day > 0 && day <= 31) {
+                this.day = day;
+            } else {
+                throw new OperationException("day value is incorrect, should be less then 31");
+            }
+        } else if (month==2) {
+            if (day > 0 && day < 28) {
+                this.day = day;
+            } {
+                throw new OperationException("day value is incorrect, should be less then 28");
+            }
+        }
+    }
+
+    public int getMonth() {
+        return month;
+    }
+
+    public void setMonth(int month) throws OperationException {
+        if (month > 0 && month < 13) {
+            this.month = month;
+        } else {
+            throw new OperationException("month should be between 1 and 12");
+        }
+    }
+
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) throws OperationException {
+        if (year > 0) {
+            this.year = year;
+        } else {
+            throw new OperationException("year should be positive number");
+        }
+    }
+
+    @Override
+    public String getPersonInfoAsString() {
+        return getDay() + "/" + getMonth() + "/" + getYear();
+    }
+}
+
+
+public class TelBook {
+
+    private String owner;
+    private ListOfPages pages = new ListOfPages();
+    private int lastEmptyPageIndex = 0;
+
+    public OperationResult add(Page page) {
+
+        if (page == null) {
+            return new OperationResult(false, "page is null");
+        } else if (page.getPerson() == null) {
+            return new OperationResult(false, "person cannot be null");
+        }
+
+        OperationResult operationResult = page.setPageNumber(lastEmptyPageIndex);
+
+        if (!operationResult.getSuccess()) {
+            return operationResult;
+        }
+
+        pages.add(page);
+        lastEmptyPageIndex++;
+
+        return new OperationResult(true, null);
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public int getLastEmptyPageIndex() {
+        return lastEmptyPageIndex;
+    }
+
+    public void setLastEmptyPageIndex(int lastEmptyPageIndex) {
+        this.lastEmptyPageIndex = lastEmptyPageIndex;
+    }
+
+    public void update(Page page, int pageIndex) {
+
+        int listIndex = getListIndex(pageIndex);
+        if (listIndex >= 0) {
+            pages.set(listIndex, page);
+        }
+
+    }
+
+    private int getListIndex(int pageIndex) {
+
+        for (int i = 0; i < pages.size(); i++) {
+
+            Page foundPage = pages.get(i);
+
+            if (foundPage.getPerson() != null) {
+                if (foundPage.getPageNumber() == pageIndex) {
+                    return i; //Attention: i.e. listIndex!=pageIndex
+                }
+            }
+
+        }
+
+        return -1;
+    }
+
+    public void delete(int pageIndex) {
+
+        int listIndex = getListIndex(pageIndex); //Attention: listIndex!=pageIndex
+
+        if (listIndex >= 0) {
+            pages.remove(listIndex);
+        }
+
+    }
+
+    public ListOfPages search(String keyWord) {
+
+        ListOfPages searchResults = new ListOfPages();
+
+        for (int i = 0; i < pages.size(); i++) {
+
+            Page foundPage = pages.get(i);
+
+            if (foundPage.getPerson() != null) {
+
+                ListOfPersonalInfos personalInfos = foundPage.getPerson().getPersonalInfos();
+
+                for (int j=0; j<personalInfos.size(); j++) {
+
+                    if (personalInfos.get(j).getPersonInfoAsString().contains(keyWord)) {
+                        searchResults.add(foundPage);
+                    }
+
+                }
+
+                ListOfContacts contacts = foundPage.getPerson().getContacts();
+
+                for (int j=0; j<contacts.size(); j++) {
+
+                    if (contacts.get(j).getContactAsString().contains(keyWord)) {
+                        searchResults.add(foundPage);
+                    }
+
+                }
+
+            }
+
+        }
+
+        return searchResults;
+    }
+
+    public Page get(int pageIndex) {
+
+        int listIndex = getListIndex(pageIndex); //Attention: listIndex!=pageIndex
+
+        if (listIndex >= 0) {
+            return pages.get(listIndex);
+        }
+
+        return null;
+    }
+
+    public ListOfPages getPages() {
+        return pages;
+    }
+
+}
+
+
+public class InstagramAccount extends Contact {
+
+    private String account;
+
+    public String getAccount() {
+        return account;
+    }
+
+    public OperationResult setAccount(String account) {
+
+        final String validInputFormat = "[a-zA-Z0-9-_]*";
+
+        if (account.matches(validInputFormat)) {
+            this.account = account;
+        } else {
+            return new OperationResult(false, "Not a valid format of account, should be "+validInputFormat);
+        }
+
+        return new OperationResult(true, null);
+    }
+
+    @Override
+    public String getContactAsString() {
+        return "www.instagram.com/"+account;
+    }
+}
+
+
+public class Gender extends PersonalInfo {
+
+    private String type; //w, m
+
+    private final String MALE = "m";
+    private final String FEMALE = "f";
+
+    public String getType() {
+        return type;
+    }
+
+    public OperationResult setType(String type) {
+
+        if (type.equalsIgnoreCase(MALE) || type.equalsIgnoreCase(FEMALE)) {
+            this.type = type;
+        } else {
+            return new OperationResult(false, "Incorrect input, should be either " + MALE + " or " + FEMALE);
+        }
+
+        return new OperationResult(true, null);
+    }
+
+    @Override
+    public String getPersonInfoAsString() {
+        return type;
+    }
+}
+
+
+
+import java.util.Objects;
+
+public class Education extends PersonalInfo {
+
+    private String level;
+    private String institution;
+    private Country country;
+    private String city;
+
+    public String getLevel() {
+        return level;
+    }
+
+    public OperationResult setLevel(String level) {
+        this.level = level;
+        return new OperationResult(true, null);
+    }
+
+    public String getInstitution() {
+        return institution;
+    }
+
+    public OperationResult setInstitution(String institution) {
+
+        final String validInstitutionFormat = "[a-zA-Z-0-9 ]*";
+
+        if (city.matches(validInstitutionFormat)) {
+            this.institution = institution;
+        } else {
+            return new OperationResult(false, "Incorrect input format, should be "+validInstitutionFormat);
+        }
+
+        return new OperationResult(true, null);
+    }
+
+    public Country getCountry() {
+        return country;
+    }
+
+    public OperationResult setCountry(Country country) {
+
+        Country c = CountriesDictionary.getCountryByName(country.getName());
+
+        if (Objects.nonNull(country) && Objects.nonNull(c)) {
+            this.country = c;
+        } else if (Objects.isNull(country)) {
+            return new OperationResult(false, "Input object is null");
+        } else {
+            return new OperationResult(false, "No such country");
+        }
+
+        return new OperationResult(true, null);
+    }
+
+    public OperationResult setCountry(String countryName) {
+
+        Country country = CountriesDictionary.getCountryByName(countryName);
+
+        if (Objects.nonNull(country)) {
+            this.country = country;
+        } else {
+            return new OperationResult(false, "No such country found "+countryName);
+        }
+
+        return new OperationResult(true, null);
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public OperationResult setCity(String city) {
+
+        final String validCityFormat = "[a-zA-Z- ]*";
+
+        if (city.matches(validCityFormat)) {
+            this.city = city;
+        } else {
+            return new OperationResult(false, "Incorrect input format, should be "+validCityFormat);
+        }
+
+        return new OperationResult(true, null);
+    }
+
+    @Override
+    public String getPersonInfoAsString() {
+        return level + ", " + institution + ", from " + country + "/" + city;
+    }
+
+}
+
+
+
+import java.util.Objects;
+
+public class CountriesDictionary {
+
+    private static final Country[] countries = new Country[]{
+            new Country("-1","Afghanistan", "AF", "AFG", "004"),
+            new Country("-1","Aland Islands", "AX", "ALA", "248"),
+            new Country("-1","Albania", "AL", "ALB", "008"),
+            new Country("-1","Algeria", "DZ", "DZA", "012"),
+            new Country("-1","American Samoa", "AS", "ASM", "016"),
+            new Country("-1","Andorra", "AD", "AND", "020"),
+            new Country("-1","Angola", "AO", "AGO", "024"),
+            new Country("-1","Anguilla", "AI", "AIA", "660"),
+            new Country("-1","Antarctica", "AQ", "ATA", "010"),
+            new Country("-1","Antigua and Barbuda", "AG", "ATG", "028"),
+            new Country("-1","Argentina", "AR", "ARG", "032"),
+            new Country("-1","Armenia", "AM", "ARM", "051"),
+            new Country("-1","Aruba", "AW", "ABW", "533"),
+            new Country("-1","Australia", "AU", "AUS", "036"),
+            new Country("-1","Austria", "AT", "AUT", "040"),
+            new Country("-1","Azerbaijan", "AZ", "AZE", "031"),
+            new Country("-1","Bahamas", "BS", "BHS", "044"),
+            new Country("-1","Bahrain", "BH", "BHR", "048"),
+            new Country("-1","Bangladesh", "BD", "BGD", "050"),
+            new Country("-1","Barbados", "BB", "BRB", "052"),
+            new Country("-1","Belarus", "BY", "BLR", "112"),
+            new Country("-1","Belgium", "BE", "BEL", "056"),
+            new Country("-1","Belize", "BZ", "BLZ", "084"),
+            new Country("-1","Benin", "BJ", "BEN", "204"),
+            new Country("-1","Bermuda", "BM", "BMU", "060"),
+            new Country("-1","Bhutan", "BT", "BTN", "064"),
+            new Country("-1","Bolivia", "BO", "BOL", "068"),
+            new Country("-1","Bosnia and Herzegovina", "BA", "BIH", "070"),
+            new Country("-1","Botswana", "BW", "BWA", "072"),
+            new Country("-1","Bouvet Island", "BV", "BVT", "074"),
+            new Country("-1","Brazil", "BR", "BRA", "076"),
+            new Country("-1","British Virgin Islands", "VG", "VGB", "092"),
+            new Country("-1","British Indian Ocean Territory", "IO", "IOT", "086"),
+            new Country("-1","Brunei Darussalam", "BN", "BRN", "096"),
+            new Country("-1","Bulgaria", "BG", "BGR", "100"),
+            new Country("-1","Burkina Faso", "BF", "BFA", "854"),
+            new Country("-1","Burundi", "BI", "BDI", "108"),
+            new Country("-1","Cambodia", "KH", "KHM", "116"),
+            new Country("-1","Cameroon", "CM", "CMR", "120"),
+            new Country("1","Canada", "CA", "CAN", "124"),
+            new Country("-1","Cape Verde", "CV", "CPV", "132"),
+            new Country("-1","Cayman Islands", "KY", "CYM", "136"),
+            new Country("-1","Central African Republic", "CF", "CAF", "140"),
+            new Country("-1","Chad", "TD", "TCD", "148"),
+            new Country("-1","Chile", "CL", "CHL", "152"),
+            new Country("-1","China", "CN", "CHN", "156"),
+            new Country("-1","Hong Kong, SAR China", "HK", "HKG", "344"),
+            new Country("-1","Macao, SAR China", "MO", "MAC", "446"),
+            new Country("-1","Christmas Island", "CX", "CXR", "162"),
+            new Country("-1","Cocos (Keeling) Islands", "CC", "CCK", "166"),
+            new Country("-1","Colombia", "CO", "COL", "170"),
+            new Country("-1","Comoros", "KM", "COM", "174"),
+            new Country("-1","Congo (Brazzaville)", "CG", "COG", "178"),
+            new Country("-1","Congo, (Kinshasa)", "CD", "COD", "180"),
+            new Country("-1","Cook Islands", "CK", "COK", "184"),
+            new Country("-1","Costa Rica", "CR", "CRI", "188"),
+            new Country("-1","Côte d'Ivoire", "CI", "CIV", "384"),
+            new Country("-1","Croatia", "HR", "HRV", "191"),
+            new Country("-1","Cuba", "CU", "CUB", "192"),
+            new Country("-1","Cyprus", "CY", "CYP", "196"),
+            new Country("-1","Czech Republic", "CZ", "CZE", "203"),
+            new Country("-1","Denmark", "DK", "DNK", "208"),
+            new Country("-1","Djibouti", "DJ", "DJI", "262"),
+            new Country("-1","Dominica", "DM", "DMA", "212"),
+            new Country("-1","Dominican Republic", "DO", "DOM", "214"),
+            new Country("-1","Ecuador", "EC", "ECU", "218"),
+            new Country("-1","Egypt", "EG", "EGY", "818"),
+            new Country("-1","El Salvador", "SV", "SLV", "222"),
+            new Country("-1","Equatorial Guinea", "GQ", "GNQ", "226"),
+            new Country("-1","Eritrea", "ER", "ERI", "232"),
+            new Country("-1","Estonia", "EE", "EST", "233"),
+            new Country("-1","Ethiopia", "ET", "ETH", "231"),
+            new Country("-1","Falkland Islands (Malvinas)", "FK", "FLK", "238"),
+            new Country("-1","Faroe Islands", "FO", "FRO", "234"),
+            new Country("-1","Fiji", "FJ", "FJI", "242"),
+            new Country("-1","Finland", "FI", "FIN", "246"),
+            new Country("-1","France", "FR", "FRA", "250"),
+            new Country("-1","French Guiana", "GF", "GUF", "254"),
+            new Country("-1","French Polynesia", "PF", "PYF", "258"),
+            new Country("-1","French Southern Territories", "TF", "ATF", "260"),
+            new Country("-1","Gabon", "GA", "GAB", "266"),
+            new Country("-1","Gambia", "GM", "GMB", "270"),
+            new Country("-1","Georgia", "GE", "GEO", "268"),
+            new Country("-1","Germany", "DE", "DEU", "276"),
+            new Country("-1","Ghana", "GH", "GHA", "288"),
+            new Country("-1","Gibraltar", "GI", "GIB", "292"),
+            new Country("-1","Greece", "GR", "GRC", "300"),
+            new Country("-1","Greenland", "GL", "GRL", "304"),
+            new Country("-1","Grenada", "GD", "GRD", "308"),
+            new Country("-1","Guadeloupe", "GP", "GLP", "312"),
+            new Country("-1","Guam", "GU", "GUM", "316"),
+            new Country("-1","Guatemala", "GT", "GTM", "320"),
+            new Country("-1","Guernsey", "GG", "GGY", "831"),
+            new Country("-1","Guinea", "GN", "GIN", "324"),
+            new Country("-1","Guinea-Bissau", "GW", "GNB", "624"),
+            new Country("-1","Guyana", "GY", "GUY", "328"),
+            new Country("-1","Haiti", "HT", "HTI", "332"),
+            new Country("-1","Heard and Mcdonald Islands", "HM", "HMD", "334"),
+            new Country("-1","Holy See (Vatican City State)", "VA", "VAT", "336"),
+            new Country("-1","Honduras", "HN", "HND", "340"),
+            new Country("-1","Hungary", "HU", "HUN", "348"),
+            new Country("-1","Iceland", "IS", "ISL", "352"),
+            new Country("-1","India", "IN", "IND", "356"),
+            new Country("-1","Indonesia", "ID", "IDN", "360"),
+            new Country("-1","Iran, Islamic Republic of", "IR", "IRN", "364"),
+            new Country("-1","Iraq", "IQ", "IRQ", "368"),
+            new Country("-1","Ireland", "IE", "IRL", "372"),
+            new Country("-1","Isle of Man", "IM", "IMN", "833"),
+            new Country("-1","Israel", "IL", "ISR", "376"),
+            new Country("-1","Italy", "IT", "ITA", "380"),
+            new Country("-1","Jamaica", "JM", "JAM", "388"),
+            new Country("-1","Japan", "JP", "JPN", "392"),
+            new Country("-1","Jersey", "JE", "JEY", "832"),
+            new Country("-1","Jordan", "JO", "JOR", "400"),
+            new Country("7","Kazakhstan", "KZ", "KAZ", "398"),
+            new Country("-1","Kenya", "KE", "KEN", "404"),
+            new Country("-1","Kiribati", "KI", "KIR", "296"),
+            new Country("-1","Korea (North)", "KP", "PRK", "408"),
+            new Country("-1","Korea (South)", "KR", "KOR", "410"),
+            new Country("-1","Kuwait", "KW", "KWT", "414"),
+            new Country("-1","Kyrgyzstan", "KG", "KGZ", "417"),
+            new Country("-1","Lao PDR", "LA", "LAO", "418"),
+            new Country("-1","Latvia", "LV", "LVA", "428"),
+            new Country("-1","Lebanon", "LB", "LBN", "422"),
+            new Country("-1","Lesotho", "LS", "LSO", "426"),
+            new Country("-1","Liberia", "LR", "LBR", "430"),
+            new Country("-1","Libya", "LY", "LBY", "434"),
+            new Country("-1","Liechtenstein", "LI", "LIE", "438"),
+            new Country("-1","Lithuania", "LT", "LTU", "440"),
+            new Country("-1","Luxembourg", "LU", "LUX", "442"),
+            new Country("-1","Macedonia, Republic of", "MK", "MKD", "807"),
+            new Country("-1","Madagascar", "MG", "MDG", "450"),
+            new Country("-1","Malawi", "MW", "MWI", "454"),
+            new Country("-1","Malaysia", "MY", "MYS", "458"),
+            new Country("-1","Maldives", "MV", "MDV", "462"),
+            new Country("-1","Mali", "ML", "MLI", "466"),
+            new Country("-1","Malta", "MT", "MLT", "470"),
+            new Country("-1","Marshall Islands", "MH", "MHL", "584"),
+            new Country("-1","Martinique", "MQ", "MTQ", "474"),
+            new Country("-1","Mauritania", "MR", "MRT", "478"),
+            new Country("-1","Mauritius", "MU", "MUS", "480"),
+            new Country("-1","Mayotte", "YT", "MYT", "175"),
+            new Country("-1","Mexico", "MX", "MEX", "484"),
+            new Country("-1","Micronesia, Federated States of", "FM", "FSM", "583"),
+            new Country("-1","Moldova", "MD", "MDA", "498"),
+            new Country("-1","Monaco", "MC", "MCO", "492"),
+            new Country("-1","Mongolia", "MN", "MNG", "496"),
+            new Country("-1","Montenegro", "ME", "MNE", "499"),
+            new Country("-1","Montserrat", "MS", "MSR", "500"),
+            new Country("-1","Morocco", "MA", "MAR", "504"),
+            new Country("-1","Mozambique", "MZ", "MOZ", "508"),
+            new Country("-1","Myanmar", "MM", "MMR", "104"),
+            new Country("-1","Namibia", "NA", "NAM", "516"),
+            new Country("-1","Nauru", "NR", "NRU", "520"),
+            new Country("-1","Nepal", "NP", "NPL", "524"),
+            new Country("-1","Netherlands", "NL", "NLD", "528"),
+            new Country("-1","Netherlands Antilles", "AN", "ANT", "530"),
+            new Country("-1","New Caledonia", "NC", "NCL", "540"),
+            new Country("64","New Zealand", "NZ", "NZL", "554"),
+            new Country("-1","Nicaragua", "NI", "NIC", "558"),
+            new Country("-1","Niger", "NE", "NER", "562"),
+            new Country("-1","Nigeria", "NG", "NGA", "566"),
+            new Country("-1","Niue", "NU", "NIU", "570"),
+            new Country("-1","Norfolk Island", "NF", "NFK", "574"),
+            new Country("-1","Northern Mariana Islands", "MP", "MNP", "580"),
+            new Country("-1","Norway", "NO", "NOR", "578"),
+            new Country("-1","Oman", "OM", "OMN", "512"),
+            new Country("-1","Pakistan", "PK", "PAK", "586"),
+            new Country("-1","Palau", "PW", "PLW", "585"),
+            new Country("-1","Palestinian Territory", "PS", "PSE", "275"),
+            new Country("-1","Panama", "PA", "PAN", "591"),
+            new Country("-1","Papua New Guinea", "PG", "PNG", "598"),
+            new Country("-1","Paraguay", "PY", "PRY", "600"),
+            new Country("-1","Peru", "PE", "PER", "604"),
+            new Country("-1","Philippines", "PH", "PHL", "608"),
+            new Country("-1","Pitcairn", "PN", "PCN", "612"),
+            new Country("-1","Poland", "PL", "POL", "616"),
+            new Country("-1","Portugal", "PT", "PRT", "620"),
+            new Country("-1","Puerto Rico", "PR", "PRI", "630"),
+            new Country("-1","Qatar", "QA", "QAT", "634"),
+            new Country("-1","Réunion", "RE", "REU", "638"),
+            new Country("-1","Romania", "RO", "ROU", "642"),
+            new Country("7","Russian Federation", "RU", "RUS", "643"),
+            new Country("-1","Rwanda", "RW", "RWA", "646"),
+            new Country("-1","Saint-Barthélemy", "BL", "BLM", "652"),
+            new Country("-1","Saint Helena", "SH", "SHN", "654"),
+            new Country("-1","Saint Kitts and Nevis", "KN", "KNA", "659"),
+            new Country("-1","Saint Lucia", "LC", "LCA", "662"),
+            new Country("-1","Saint-Martin (French part)", "MF", "MAF", "663"),
+            new Country("-1","Saint Pierre and Miquelon", "PM", "SPM", "666"),
+            new Country("-1","Saint Vincent and Grenadines", "VC", "VCT", "670"),
+            new Country("-1","Samoa", "WS", "WSM", "882"),
+            new Country("-1","San Marino", "SM", "SMR", "674"),
+            new Country("-1","Sao Tome and Principe", "ST", "STP", "678"),
+            new Country("-1","Saudi Arabia", "SA", "SAU", "682"),
+            new Country("-1","Senegal", "SN", "SEN", "686"),
+            new Country("-1","Serbia", "RS", "SRB", "688"),
+            new Country("-1","Seychelles", "SC", "SYC", "690"),
+            new Country("-1","Sierra Leone", "SL", "SLE", "694"),
+            new Country("-1","Singapore", "SG", "SGP", "702"),
+            new Country("-1","Slovakia", "SK", "SVK", "703"),
+            new Country("-1","Slovenia", "SI", "SVN", "705"),
+            new Country("-1","Solomon Islands", "SB", "SLB", "090"),
+            new Country("-1","Somalia", "SO", "SOM", "706"),
+            new Country("-1","South Africa", "ZA", "ZAF", "710"),
+            new Country("-1","South Georgia and the South Sandwich Islands", "GS", "SGS", "239"),
+            new Country("-1","South Sudan", "SS", "SSD", "728"),
+            new Country("-1","Spain", "ES", "ESP", "724"),
+            new Country("-1","Sri Lanka", "LK", "LKA", "144"),
+            new Country("-1","Sudan", "SD", "SDN", "736"),
+            new Country("-1","Suriname", "SR", "SUR", "740"),
+            new Country("-1","Svalbard and Jan Mayen Islands", "SJ", "SJM", "744"),
+            new Country("-1","Swaziland", "SZ", "SWZ", "748"),
+            new Country("-1","Sweden", "SE", "SWE", "752"),
+            new Country("-1","Switzerland", "CH", "CHE", "756"),
+            new Country("-1","Syrian Arab Republic (Syria)", "SY", "SYR", "760"),
+            new Country("-1","Taiwan, Republic of China", "TW", "TWN", "158"),
+            new Country("-1","Tajikistan", "TJ", "TJK", "762"),
+            new Country("-1","Tanzania, United Republic of", "TZ", "TZA", "834"),
+            new Country("-1","Thailand", "TH", "THA", "764"),
+            new Country("-1","Timor-Leste", "TL", "TLS", "626"),
+            new Country("-1","Togo", "TG", "TGO", "768"),
+            new Country("-1","Tokelau", "TK", "TKL", "772"),
+            new Country("-1","Tonga", "TO", "TON", "776"),
+            new Country("-1","Trinidad and Tobago", "TT", "TTO", "780"),
+            new Country("-1","Tunisia", "TN", "TUN", "788"),
+            new Country("90","Turkey", "TR", "TUR", "792"),
+            new Country("-1","Turkmenistan", "TM", "TKM", "795"),
+            new Country("-1","Turks and Caicos Islands", "TC", "TCA", "796"),
+            new Country("-1","Tuvalu", "TV", "TUV", "798"),
+            new Country("-1","Uganda", "UG", "UGA", "800"),
+            new Country("-1","Ukraine", "UA", "UKR", "804"),
+            new Country("-1","United Arab Emirates", "AE", "ARE", "784"),
+            new Country("-1","United Kingdom", "GB", "GBR", "826"),
+            new Country("1","United States of America", "US", "USA", "840"),
+            new Country("-1","US Minor Outlying Islands", "UM", "UMI", "581"),
+            new Country("-1","Uruguay", "UY", "URY", "858"),
+            new Country("-1","Uzbekistan", "UZ", "UZB", "860"),
+            new Country("-1","Vanuatu", "VU", "VUT", "548"),
+            new Country("-1","Venezuela (Bolivarian Republic)", "VE", "VEN", "862"),
+            new Country("-1","Viet Nam", "VN", "VNM", "704"),
+            new Country("-1","Virgin Islands, US", "VI", "VIR", "850"),
+            new Country("-1","Wallis and Futuna Islands", "WF", "WLF", "876"),
+            new Country("-1","Western Sahara", "EH", "ESH", "732"),
+            new Country("-1","Yemen", "YE", "YEM", "887"),
+            new Country("-1","Zambia", "ZM", "ZMB", "894"),
+            new Country("-1","Zimbabwe", "ZW", "ZWE", "716")};
+
+    public static Country getCountryByName(String name) {
+
+        if (Objects.nonNull(name) && !name.isEmpty()) {
+
+            for (int i = 0; i < countries.length; i++) {
+                if (countries[i].getName().equalsIgnoreCase(name.trim())) {
+                    return countries[i];
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public static Country getCountryByPhoneCode(String phoneCode) {
+
+        if (Objects.nonNull(phoneCode) && !phoneCode.isEmpty()) {
+
+            for (int i = 0; i < countries.length; i++) {
+                if (countries[i].getPhoneCode().equalsIgnoreCase(phoneCode.trim())) {
+                    return countries[i];
+                }
+            }
+        }
+
+        return null;
+    }
+}
+
+
+
+public class ListOfPages {
+
+    private PageNode firstNode;
+    private PageNode lastNode;
+    private int size = 0;
+
+    public int size() {
+        return size;
+    }
+
+    public boolean isEmpty() {
+
+        if (size == 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void clear() {
+
+        firstNode = null;
+        lastNode = null;
+        size = 0;
+
+    }
+
+    public Page get(int index) {
+
+        PageNode node = getNode(index);
+
+        if (node != null) {
+            return node.getContent();
+        }
+
+        return null;
+    }
+
+    private PageNode getNode(int index) {
+
+        PageNode iteratorNode = firstNode;
+
+        for (int i = 0; i < size; i++) {
+
+            if (i == index) {
+                return iteratorNode;
+            }
+
+            iteratorNode = iteratorNode.getNext();
+        }
+
+        return null;
+    }
+
+    public void set(int index, Page content) {
+
+        PageNode node = getNode(index);
+
+        if (node != null) {
+            node.setContent(content);
+        }
+
+    }
+
+    public void remove(int index) {
+
+        PageNode node = getNode(index);
+
+        if (node != null) {
+
+            PageNode prevNode = node.getPrevious();
+            PageNode nextNode = node.getNext();
+
+            if (firstNode == lastNode) {
+                firstNode = null;
+                lastNode = null;
+            } else if (node == firstNode) {
+                firstNode = nextNode;
+                firstNode.setPrevious(null);
+            } else if (node == lastNode) {
+                lastNode = prevNode;
+                lastNode.setNext(null);
+            } else {
+                prevNode.setNext(nextNode);
+                nextNode.setPrevious(prevNode);
+            }
+
+            size--;
+        }
+
+    }
+
+    public void add(Page content) {
+
+        if (size != 0) {
+            PageNode node = new PageNode(null, lastNode, content);
+            lastNode.setNext(node);
+            lastNode = node;
+        } else {
+            PageNode node = new PageNode(null, null, content);
+            firstNode = node;
+            lastNode = node;
+        }
+
+        size++;
+
+    }
+
+}
+
+
+
+public class ListOfPersonalInfos {
+
+    private PersonalInfoNode firstNode;
+    private PersonalInfoNode lastNode;
+    private int size = 0;
+
+    public int size() {
+        return size;
+    }
+
+    public boolean isEmpty() {
+
+        if (size == 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void clear() {
+
+        firstNode = null;
+        lastNode = null;
+        size = 0;
+
+    }
+
+    public PersonalInfo get(int index) {
+
+        PersonalInfoNode node = getNode(index);
+
+        if (node != null) {
+            return node.getContent();
+        }
+
+        return null;
+    }
+
+    private PersonalInfoNode getNode(int index) {
+
+        PersonalInfoNode iteratorNode = firstNode;
+
+        for (int i = 0; i < size; i++) {
+
+            if (i == index) {
+                return iteratorNode;
+            }
+
+            iteratorNode = iteratorNode.getNext();
+        }
+
+        return null;
+    }
+
+    public void set(int index, PersonalInfo content) {
+
+        PersonalInfoNode node = getNode(index);
+
+        if (node != null) {
+            node.setContent(content);
+        }
+
+    }
+
+    public void remove(int index) {
+
+        PersonalInfoNode node = getNode(index);
+
+        if (node != null) {
+
+            PersonalInfoNode prevNode = node.getPrevious();
+            PersonalInfoNode nextNode = node.getNext();
+
+            if (firstNode == lastNode) {
+                firstNode = null;
+                lastNode = null;
+            } else if (node == firstNode) {
+                firstNode = nextNode;
+                firstNode.setPrevious(null);
+            } else if (node == lastNode) {
+                lastNode = prevNode;
+                lastNode.setNext(null);
+            } else {
+                prevNode.setNext(nextNode);
+                nextNode.setPrevious(prevNode);
+            }
+
+            size--;
+        }
+
+    }
+
+    public void add(PersonalInfo content) {
+
+        if (size != 0) {
+            PersonalInfoNode node = new PersonalInfoNode(null, lastNode, content);
+            lastNode.setNext(node);
+            lastNode = node;
+        } else {
+            PersonalInfoNode node = new PersonalInfoNode(null, null, content);
+            firstNode = node;
+            lastNode = node;
+        }
+
+        size++;
+
+    }
+
+}
+
+
+
+public class ContactNode {
+
+    private ContactNode next;
+    private ContactNode previous;
+    private Contact content;
+
+    public ContactNode(ContactNode next, ContactNode previous, Contact content) {
+        this.next = next;
+        this.previous = previous;
+        this.content = content;
+    }
+
+    public ContactNode getNext() {
+        return next;
+    }
+
+    public void setNext(ContactNode next) {
+        this.next = next;
+    }
+
+    public ContactNode getPrevious() {
+        return previous;
+    }
+
+    public void setPrevious(ContactNode previous) {
+        this.previous = previous;
+    }
+
+    public Contact getContent() {
+        return content;
+    }
+
+    public void setContent(Contact content) {
+        this.content = content;
+    }
+}
+
+
+public class Name extends PersonalInfo {
+
+    private String firstname;
+    private String surname;
+    private String paternal;
+    private String maternal;
+    private String prefix; //Mr, Mrs, Bey, Aga, Professor
+
+    public String getFirstname() {
+        return firstname;
+    }
+
+    public OperationResult setFirstname(String firstname) {
+        this.firstname = firstname;
+        return new OperationResult(true,null);
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public OperationResult setSurname(String surname) {
+        this.surname = surname;
+        return new OperationResult(true,null);
+    }
+
+    public String getPaternal() {
+        return paternal;
+    }
+
+    public OperationResult setPaternal(String paternal) {
+        this.paternal = paternal;
+        return new OperationResult(true,null);
+    }
+
+    public String getMaternal() {
+        return maternal;
+    }
+
+    public OperationResult setMaternal(String maternal) {
+        this.maternal = maternal;
+        return new OperationResult(true,null);
+    }
+
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public OperationResult setPrefix(String prefix) {
+        this.prefix = prefix;
+        return new OperationResult(true,null);
+    }
+
+    @Override
+    public String getPersonInfoAsString() {
+        return prefix  + " " + firstname + " " + surname + " " + paternal + " (" + maternal  + ")";
+    }
+}
+
+
+
+public class Person {
+
+    private ListOfPersonalInfos personalInfos = new ListOfPersonalInfos();
+    private int lastFreeCellInPersonalInfos = 0;
+
+    private ListOfContacts contacts = new ListOfContacts();
+    private int lastFreeCellInContacts = 0;
+
+    public ListOfPersonalInfos getPersonalInfos() {
+        return personalInfos;
+    }
+
+    public void setPersonalInfos(ListOfPersonalInfos personalInfos) {
+        this.personalInfos = personalInfos;
+    }
+
+    public ListOfContacts getContacts() {
+        return contacts;
+    }
+
+    public void setContacts(ListOfContacts contacts) {
+        this.contacts = contacts;
+    }
+
+    public void addPersonalInfo(PersonalInfo personalInfo) {
+        personalInfos.add(personalInfo);
+        lastFreeCellInPersonalInfos++;
+    }
+
+    public void addContact(Contact contact) {
+        contacts.add(contact);
+        lastFreeCellInContacts++;
+    }
+}
+
+
+public class FacebookAccount extends Contact {
+
+    private String username;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public OperationResult setUsername(String username) {
+
+        final String validInputFormat = "[a-zA-Z0-9-_]*";
+
+        if (username.matches(validInputFormat)) {
+            this.username = username;
+        } else {
+            return new OperationResult(false, "Not a valid format of username, should be "+validInputFormat);
+        }
+
+        return new OperationResult(true, null);
+    }
+
+    @Override
+    public String getContactAsString() {
+        return "www.facebook.com/people/"+username;
+    }
+}
+
+
+public class Country {
+
+    private final String name;
+    private final String alpha2Code;
+    private final String alpha3Code;
+    private final String unitedNationsCode;
+    private final String phoneCode;
+
+    public Country(String phoneCode, String name, String alpha2Code, String alpha3Code, String unitedNationsCode) {
+        this.unitedNationsCode = unitedNationsCode;
+        this.alpha3Code = alpha3Code;
+        this.alpha2Code = alpha2Code;
+        this.name = name;
+        this.phoneCode = phoneCode;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getAlpha2Code() {
+        return alpha2Code;
+    }
+
+    public String getAlpha3Code() {
+        return alpha3Code;
+    }
+
+    public String getUnitedNationsCode() {
+        return unitedNationsCode;
+    }
+
+    public String getPhoneCode() {
+        return phoneCode;
+    }
+}
+
+
+public abstract class Contact {
+	public abstract String getContactAsString();
+}
+
+
+public class Email extends Contact {
+
+    private String username; //maxim.semenov
+    private String mailProvider; //gmail.com
+
+    public String getUsername() {
+        return username;
+    }
+
+    public OperationResult setUsername(String username) {
+        this.username = username;
+        return new OperationResult(true, null);
+    }
+
+    public String getMailProvider() {
+        return mailProvider;
+    }
+
+    public OperationResult setMailProvider(String mailProvider) {
+
+        final String validInputFormat = "[a-zA-Z0-9-_]*";
+
+        if (mailProvider.matches(validInputFormat)) {
+            this.mailProvider = mailProvider;
+        } else {
+            return new OperationResult(false, "mailProvider format is incorrect should be "+validInputFormat);
+        }
+
+        return new OperationResult(true, null);
+    }
+
+    @Override
+    public String getContactAsString() {
+        return username + "@" + mailProvider;
+    }
+}
+
+
+public class ListOfContacts {
+
+    private ContactNode firstNode;
+    private ContactNode lastNode;
+    private int size = 0;
+
+    public int size() {
+        return size;
+    }
+
+    public boolean isEmpty() {
+
+        if (size == 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void clear() {
+
+        firstNode = null;
+        lastNode = null;
+        size = 0;
+
+    }
+
+    public Contact get(int index) {
+
+        ContactNode node = getNode(index);
+
+        if (node != null) {
+            return node.getContent();
+        }
+
+        return null;
+    }
+
+    private ContactNode getNode(int index) {
+
+        ContactNode iteratorNode = firstNode;
+
+        for (int i = 0; i < size; i++) {
+
+            if (i == index) {
+                return iteratorNode;
+            }
+
+            iteratorNode = iteratorNode.getNext();
+        }
+
+        return null;
+    }
+
+    public void set(int index, Contact content) {
+
+        ContactNode node = getNode(index);
+
+        if (node != null) {
+            node.setContent(content);
+        }
+
+    }
+
+    public void remove(int index) {
+
+        ContactNode node = getNode(index);
+
+        if (node != null) {
+
+            ContactNode prevNode = node.getPrevious();
+            ContactNode nextNode = node.getNext();
+
+            if (firstNode == lastNode) {
+                firstNode = null;
+                lastNode = null;
+            } else if (node == firstNode) {
+                firstNode = nextNode;
+                firstNode.setPrevious(null);
+            } else if (node == lastNode) {
+                lastNode = prevNode;
+                lastNode.setNext(null);
+            } else {
+                prevNode.setNext(nextNode);
+                nextNode.setPrevious(prevNode);
+            }
+
+            size--;
+        }
+
+    }
+
+    public void add(Contact content) {
+
+        if (size != 0) {
+            ContactNode node = new ContactNode(null, lastNode, content);
+            lastNode.setNext(node);
+            lastNode = node;
+        } else {
+            ContactNode node = new ContactNode(null, null, content);
+            firstNode = node;
+            lastNode = node;
+        }
+
+        size++;
+
+    }
+
+}
+
+
+public class Profession extends PersonalInfo {
+
+    private String professionGroup; //medical
+    private String professionName; //dentist
+
+    public String getProfessionGroup() {
+        return professionGroup;
+    }
+
+    public OperationResult setProfessionGroup(String professionGroup) {
+
+        final String validFormat = "[a-zA-Z- ]*";
+
+        if (professionGroup.matches(validFormat)) {
+            this.professionGroup = professionGroup;
+        } else {
+            return new OperationResult(false, "Not a valid profession group format, should be " + validFormat);
+        }
+
+        return new OperationResult(true, null);
+    }
+
+    public String getProfessionName() {
+        return professionName;
+    }
+
+    public OperationResult setProfessionName(String professionName) {
+
+        final String validFormat = "[a-zA-Z0-9- ]*";
+
+        if (professionName.matches(validFormat)) {
+            this.professionName = professionName;
+        } else {
+            return new OperationResult(false, "Incorrect format of input data, should be " + validFormat);
+        }
+
+        return new OperationResult(true, null);
+    }
+
+    @Override
+    public String getPersonInfoAsString() {
+        return professionName + "(" + professionGroup + ")";
+    }
+}
+
+
+public class OperationException extends Exception {
+    public OperationException(String message) {
+        super(message);
+    }
+}
+
+
+public class OperationResult {
+	private Boolean isSuccess;
+	private String errorMsg;
+
+	public OperationResult(Boolean isSuccess, String errorMsg) {
+		this.isSuccess = isSuccess;
+		this.errorMsg = errorMsg;
+	}
+
+	public Boolean getSuccess() {
+		return isSuccess;
+	}
+
+	public void setSuccess(Boolean success) {
+		isSuccess = success;
+	}
+
+	public String getErrorMsg() {
+		return errorMsg;
+	}
+
+	public void setErrorMsg(String errorMsg) {
+		this.errorMsg = errorMsg;
+	}
+}
+
+
+import java.util.Objects;
+
+public class MobilePhone extends Contact {
+
+    private String countryCode; //+7, +0, +1...
+    private String msisdn; //7015657645
+
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public OperationResult setCountryCode(String countryPhoneCode) {
+
+        Country country = CountriesDictionary.getCountryByPhoneCode(countryPhoneCode);
+
+        if (Objects.nonNull(country)) {
+            this.countryCode = countryPhoneCode;
+        } else {
+            return new OperationResult(false, "Either no such phone code or database contains no code for that country");
+        }
+
+        return new OperationResult(true, null);
+    }
+
+    public String getMsisdn() {
+        return msisdn;
+    }
+
+    public OperationResult setMsisdn(String msisdn) {
+        this.msisdn = msisdn;
+        return new OperationResult(true, null);
+    }
+
+    @Override
+    public String getContactAsString() {
+        return getCountryCode() + " " + getMsisdn();
+    }
+}
+
+
+public class Page {
+
+    private int pageNumber;
+    private Person person;
+
+    public Page(Person person, OperationResult operationResult) {
+        operationResult = this.setPerson(person);
+    }
+
+    public int getPageNumber() {
+        return pageNumber;
+    }
+
+    public OperationResult setPageNumber(int pageNumber) {
+
+        if (pageNumber < 0) {
+            return new OperationResult(false, "page number cannot be less then 0");
+        }
+
+        this.pageNumber = pageNumber;
+
+        return new OperationResult(true, null);
+    }
+
+    public Person getPerson() {
+        return person;
+    }
+
+    public OperationResult setPerson(Person person) {
+
+        if (person.getPersonalInfos() == null || person.getPersonalInfos().size() == 0) {
+            return new OperationResult(false, "personal info cannot be null");
+        }
+
+        this.person = person;
+
+        return new OperationResult(true, null);
+    }
+}
+
+
+public abstract class PersonalInfo {
+	public abstract String getPersonInfoAsString();
+}
+
+
+import java.util.Scanner;
+
+public class TelephoneBookApplication {
+
+    public static void main(String[] args) {
+
+        System.out.println("Hello this is my phonebook");
+
+        Scanner scanner = new Scanner(System.in);
+
+        TelBook telBook = new TelBook();
+
+        try {
+
+            while (true) {
+
+                System.out.println("Menu: ");
+                System.out.println("1 - Add page;");
+                System.out.println("2 - Show all pages;");
+                System.out.println("3 - Update page;");
+                System.out.println("4 - Delete page;");
+                System.out.println("5 - Search page;");
+
+                System.out.println("Enter option: ");
+
+                int optionSelected = Integer.parseInt(scanner.nextLine());
+
+                if (optionSelected == 1) {
+
+                    Page page = createPage(scanner);
+                    tellMeIfError(telBook.add(page));
+
+                } else if (optionSelected == 2) {
+
+                    printPages(telBook.getPages());
+
+                } else if (optionSelected == 3) {
+
+                    System.out.println("Enter page number to replace: ");
+                    int pageIndex = Integer.parseInt(scanner.nextLine());
+
+                    telBook.update(createPage(scanner), pageIndex);
+
+                } else if (optionSelected == 4) {
+
+                    System.out.println("Enter page number to delete: ");
+                    int pageIndex = Integer.parseInt(scanner.nextLine());
+
+                    telBook.delete(pageIndex);
+
+                } else if (optionSelected == 5) {
+
+                    System.out.println("Enter search keyWord:");
+                    String keyWord = scanner.nextLine();
+
+                    ListOfPages foundPages = telBook.search(keyWord);
+
+                    printPages(foundPages);
+
+                }
+            }
+
+        } catch (ClientWantsToExitException e) {
+            System.out.println("Thank you for using our software! See you later!");
+            System.out.println("Exiting TelBook...");
+        }
+
+    }
+
+    private static Page createPage(Scanner scanner) throws ClientWantsToExitException {
+
+        Person person = new Person();
+
+        while (true) {
+
+            System.out.println("Select info to fill: ");
+            System.out.println("(tel) Fill mobile phone");
+            System.out.println("(name) Fill name");
+            System.out.println("(birthday) Fill birthday");
+            System.out.println("(twitter) Fill twitter account");
+            System.out.println("(done) Exit this menu");
+
+            String infoType = scanner.nextLine();
+
+            if (infoType.equals("tel")) {
+
+                MobilePhone mobilePhone = new MobilePhone();
+
+                System.out.println("-Mobile phone-");
+                System.out.println("country code:");
+                tellMeIfError(mobilePhone.setCountryCode(scanner.nextLine()));
+                System.out.println("msisdn:");
+                tellMeIfError(mobilePhone.setMsisdn(scanner.nextLine()));
+
+                person.addContact(mobilePhone);
+
+            } else if (infoType.equals("name")) {
+
+                Name name = new Name();
+
+                System.out.println("-Name-");
+                System.out.println("firstname:");
+                tellMeIfError(name.setFirstname(scanner.nextLine()));
+                System.out.println("surname:");
+                tellMeIfError(name.setSurname(scanner.nextLine()));
+                System.out.println("paternalname:");
+                tellMeIfError(name.setPaternal(scanner.nextLine()));
+                System.out.println("maternalname:");
+                tellMeIfError(name.setMaternal(scanner.nextLine()));
+                System.out.println("prefix:");
+                tellMeIfError(name.setPrefix(scanner.nextLine()));
+
+                person.addPersonalInfo(name);
+
+            } else if (infoType.equals("birthday")) {
+
+
+                while (true) {
+
+                    Birthday birthday = new Birthday();
+
+                    try {
+
+                        System.out.println("-Birthday-");
+                        System.out.println("day:");
+                        birthday.setDay(Integer.parseInt(scanLineOrThrowException(scanner)));
+                        System.out.println("month:");
+                        birthday.setMonth(Integer.parseInt(scanLineOrThrowException(scanner)));
+                        System.out.println("year:");
+                        birthday.setYear(Integer.parseInt(scanLineOrThrowException(scanner)));
+
+                    } catch (NumberFormatException | OperationException e) {
+
+                        System.err.println(e.getMessage());
+                        System.out.println("Would you like to retry operation (Y/N)?");
+
+                        String l = scanner.nextLine();
+
+                        if (l.equals("Y")) {
+                            continue; //retry while loop from the start
+                        } else {
+                            break; //breaking while loop without calling person.addPersonalInfo(birthday)
+                        }
+                    }
+
+                    person.addPersonalInfo(birthday);
+                    break;
+                }
+
+
+            } else if (infoType.equals("twitter")) {
+
+                TwitterAccount twitter = new TwitterAccount();
+
+                System.out.println("-Twitter-");
+                System.out.println("username:");
+                tellMeIfError(twitter.setUsername(scanner.nextLine()));
+
+                person.addContact(twitter);
+
+            } else if (infoType.equals("email")) {
+
+                Email email = new Email();
+
+                System.out.println("-Email-");
+                System.out.println("username:");
+                tellMeIfError(email.setUsername(scanner.nextLine()));
+                System.out.println("mailProvider:");
+                tellMeIfError(email.setMailProvider(scanner.nextLine()));
+
+                person.addContact(email);
+
+            } else if (infoType.equals("education")) {
+
+                Education education = new Education();
+
+                System.out.println("-Education-");
+                System.out.println("city:");
+                tellMeIfError(education.setCity(scanner.nextLine()));
+                System.out.println("country:");
+                tellMeIfError(education.setCountry(scanner.nextLine()));
+                System.out.println("institution:");
+                tellMeIfError(education.setInstitution(scanner.nextLine()));
+                System.out.println("level:");
+                tellMeIfError(education.setLevel(scanner.nextLine()));
+
+                person.addPersonalInfo(education);
+
+            } else if (infoType.equals("facebook")) {
+
+                FacebookAccount facebookAccount = new FacebookAccount();
+
+                System.out.println("-Facebook Account-");
+                System.out.println("username:");
+                tellMeIfError(facebookAccount.setUsername(scanner.nextLine()));
+
+                person.addContact(facebookAccount);
+
+            } else if (infoType.equals("gender")) {
+
+                Gender gender = new Gender();
+
+                System.out.println("-Gender-");
+                System.out.println("(m)ale/(f)emale:");
+                tellMeIfError(gender.setType(scanner.nextLine()));
+
+                person.addPersonalInfo(gender);
+
+            } else if (infoType.equals("instagram_account")) {
+
+                InstagramAccount instagramAccount = new InstagramAccount();
+
+                System.out.println("-Instagram Account-");
+                System.out.println("account:");
+                tellMeIfError(instagramAccount.setAccount(scanner.nextLine()));
+
+                person.addContact(instagramAccount);
+
+            } else if (infoType.equals("profession")) {
+
+                Profession profession = new Profession();
+
+                System.out.println("-Profession-");
+                System.out.println("profession group:");
+                tellMeIfError(profession.setProfessionGroup(scanner.nextLine()));
+                System.out.println("profession name:");
+                tellMeIfError(profession.setProfessionName(scanner.nextLine()));
+
+                person.addPersonalInfo(profession);
+
+            } else if (infoType.equals("done")) {
+                break;
+            }
+        }
+
+        OperationResult operationResult = null;
+
+        Page page = new Page(person, operationResult);
+
+        return page;
+    }
+
+    private static String scanLineOrThrowException(Scanner scanner) throws ClientWantsToExitException {
+
+        String val = scanner.nextLine();
+
+        if (val.equals(":exit")) {
+            throw new ClientWantsToExitException();
+        }
+
+        return val;
+    }
+
+    private static void printPages(ListOfPages pages) {
+
+        int i = 0;
+
+        while (i < pages.size()) {
+
+            Page page = pages.get(i);
+            Person person = page.getPerson();
+
+            ListOfPersonalInfos personalInfos = person.getPersonalInfos();
+            ListOfContacts contacts = person.getContacts();
+
+            System.out.println("Page# " + page.getPageNumber());
+
+            for (int j = 0; j < personalInfos.size(); j++) {
+                System.out.println(personalInfos.get(j).getPersonInfoAsString());
+            }
+
+            for (int j = 0; j < contacts.size(); j++) {
+                System.out.println(contacts.get(j).getContactAsString());
+            }
+
+            System.out.println();
+
+            i++;
+        }
+    }
+
+    private static void tellMeIfError(OperationResult operationResult) {
+
+        if (operationResult.getSuccess() == false) {
+            System.err.println(operationResult.getErrorMsg());
+        }
+    }
+
+}
+
