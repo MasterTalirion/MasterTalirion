@@ -1,104 +1,3 @@
-public class TwitterAccount extends Contact {
-
-    private String username;
-
-    public String getUsername() {
-        return username;
-    }
-
-    public OperationResult setUsername(String username) {
-        this.username = username;
-        return new OperationResult(true,null);
-    }
-
-    @Override
-    public String getContactAsString() {
-        return "www.twitter.com/"+username;
-    }
-}
-
-
-public class PersonalInfoNode {
-
-    private PersonalInfoNode next;
-    private PersonalInfoNode previous;
-    private PersonalInfo content;
-
-    public PersonalInfoNode(PersonalInfoNode next, PersonalInfoNode previous, PersonalInfo content) {
-        this.next = next;
-        this.previous = previous;
-        this.content = content;
-    }
-
-    public PersonalInfoNode getNext() {
-        return next;
-    }
-
-    public void setNext(PersonalInfoNode next) {
-        this.next = next;
-    }
-
-    public PersonalInfoNode getPrevious() {
-        return previous;
-    }
-
-    public void setPrevious(PersonalInfoNode previous) {
-        this.previous = previous;
-    }
-
-    public PersonalInfo getContent() {
-        return content;
-    }
-
-    public void setContent(PersonalInfo content) {
-        this.content = content;
-    }
-}
-
-
-public class PageNode {
-
-    private PageNode next;
-    private PageNode previous;
-    private Page content;
-
-    public PageNode(PageNode next, PageNode previous, Page content) {
-        this.next = next;
-        this.previous = previous;
-        this.content = content;
-    }
-
-    public PageNode getNext() {
-        return next;
-    }
-
-    public void setNext(PageNode next) {
-        this.next = next;
-    }
-
-    public PageNode getPrevious() {
-        return previous;
-    }
-
-    public void setPrevious(PageNode previous) {
-        this.previous = previous;
-    }
-
-    public Page getContent() {
-        return content;
-    }
-
-    public void setContent(Page content) {
-        this.content = content;
-    }
-}
-
-
-public class ClientWantsToExitException extends Exception {
-}
-
-
-
 public class Birthday extends PersonalInfo {
 
     private int day;
@@ -156,288 +55,49 @@ public class Birthday extends PersonalInfo {
 }
 
 
-public class TelBook {
-
-    private String owner;
-    private ListOfPages pages = new ListOfPages();
-    private int lastEmptyPageIndex = 0;
-
-    public OperationResult add(Page page) {
-
-        if (page == null) {
-            return new OperationResult(false, "page is null");
-        } else if (page.getPerson() == null) {
-            return new OperationResult(false, "person cannot be null");
-        }
-
-        OperationResult operationResult = page.setPageNumber(lastEmptyPageIndex);
-
-        if (!operationResult.getSuccess()) {
-            return operationResult;
-        }
-
-        pages.add(page);
-        lastEmptyPageIndex++;
-
-        return new OperationResult(true, null);
-    }
-
-    public String getOwner() {
-        return owner;
-    }
-
-    public void setOwner(String owner) {
-        this.owner = owner;
-    }
-
-    public int getLastEmptyPageIndex() {
-        return lastEmptyPageIndex;
-    }
-
-    public void setLastEmptyPageIndex(int lastEmptyPageIndex) {
-        this.lastEmptyPageIndex = lastEmptyPageIndex;
-    }
-
-    public void update(Page page, int pageIndex) {
-
-        int listIndex = getListIndex(pageIndex);
-        if (listIndex >= 0) {
-            pages.set(listIndex, page);
-        }
-
-    }
-
-    private int getListIndex(int pageIndex) {
-
-        for (int i = 0; i < pages.size(); i++) {
-
-            Page foundPage = pages.get(i);
-
-            if (foundPage.getPerson() != null) {
-                if (foundPage.getPageNumber() == pageIndex) {
-                    return i; //Attention: i.e. listIndex!=pageIndex
-                }
-            }
-
-        }
-
-        return -1;
-    }
-
-    public void delete(int pageIndex) {
-
-        int listIndex = getListIndex(pageIndex); //Attention: listIndex!=pageIndex
-
-        if (listIndex >= 0) {
-            pages.remove(listIndex);
-        }
-
-    }
-
-    public ListOfPages search(String keyWord) {
-
-        ListOfPages searchResults = new ListOfPages();
-
-        for (int i = 0; i < pages.size(); i++) {
-
-            Page foundPage = pages.get(i);
-
-            if (foundPage.getPerson() != null) {
-
-                ListOfPersonalInfos personalInfos = foundPage.getPerson().getPersonalInfos();
-
-                for (int j=0; j<personalInfos.size(); j++) {
-
-                    if (personalInfos.get(j).getPersonInfoAsString().contains(keyWord)) {
-                        searchResults.add(foundPage);
-                    }
-
-                }
-
-                ListOfContacts contacts = foundPage.getPerson().getContacts();
-
-                for (int j=0; j<contacts.size(); j++) {
-
-                    if (contacts.get(j).getContactAsString().contains(keyWord)) {
-                        searchResults.add(foundPage);
-                    }
-
-                }
-
-            }
-
-        }
-
-        return searchResults;
-    }
-
-    public Page get(int pageIndex) {
-
-        int listIndex = getListIndex(pageIndex); //Attention: listIndex!=pageIndex
-
-        if (listIndex >= 0) {
-            return pages.get(listIndex);
-        }
-
-        return null;
-    }
-
-    public ListOfPages getPages() {
-        return pages;
-    }
-
+public class ClientWantsToExitException extends Exception {
 }
 
-
-public class InstagramAccount extends Contact {
-
-    private String account;
-
-    public String getAccount() {
-        return account;
-    }
-
-    public OperationResult setAccount(String account) {
-
-        final String validInputFormat = "[a-zA-Z0-9-_]*";
-
-        if (account.matches(validInputFormat)) {
-            this.account = account;
-        } else {
-            return new OperationResult(false, "Not a valid format of account, should be "+validInputFormat);
-        }
-
-        return new OperationResult(true, null);
-    }
-
-    @Override
-    public String getContactAsString() {
-        return "www.instagram.com/"+account;
-    }
+public abstract class Contact {
+    public abstract String getContactAsString();
 }
 
+public class ContactNode {
 
-public class Gender extends PersonalInfo {
+    private ContactNode next;
+    private ContactNode previous;
+    private Contact content;
 
-    private String type; //w, m
-
-    private final String MALE = "m";
-    private final String FEMALE = "f";
-
-    public String getType() {
-        return type;
+    public ContactNode(ContactNode next, ContactNode previous, Contact content) {
+        this.next = next;
+        this.previous = previous;
+        this.content = content;
     }
 
-    public OperationResult setType(String type) {
-
-        if (type.equalsIgnoreCase(MALE) || type.equalsIgnoreCase(FEMALE)) {
-            this.type = type;
-        } else {
-            return new OperationResult(false, "Incorrect input, should be either " + MALE + " or " + FEMALE);
-        }
-
-        return new OperationResult(true, null);
+    public ContactNode getNext() {
+        return next;
     }
 
-    @Override
-    public String getPersonInfoAsString() {
-        return type;
+    public void setNext(ContactNode next) {
+        this.next = next;
+    }
+
+    public ContactNode getPrevious() {
+        return previous;
+    }
+
+    public void setPrevious(ContactNode previous) {
+        this.previous = previous;
+    }
+
+    public Contact getContent() {
+        return content;
+    }
+
+    public void setContent(Contact content) {
+        this.content = content;
     }
 }
-
-
-
-import java.util.Objects;
-
-public class Education extends PersonalInfo {
-
-    private String level;
-    private String institution;
-    private Country country;
-    private String city;
-
-    public String getLevel() {
-        return level;
-    }
-
-    public OperationResult setLevel(String level) {
-        this.level = level;
-        return new OperationResult(true, null);
-    }
-
-    public String getInstitution() {
-        return institution;
-    }
-
-    public OperationResult setInstitution(String institution) {
-
-        final String validInstitutionFormat = "[a-zA-Z-0-9 ]*";
-
-        if (city.matches(validInstitutionFormat)) {
-            this.institution = institution;
-        } else {
-            return new OperationResult(false, "Incorrect input format, should be "+validInstitutionFormat);
-        }
-
-        return new OperationResult(true, null);
-    }
-
-    public Country getCountry() {
-        return country;
-    }
-
-    public OperationResult setCountry(Country country) {
-
-        Country c = CountriesDictionary.getCountryByName(country.getName());
-
-        if (Objects.nonNull(country) && Objects.nonNull(c)) {
-            this.country = c;
-        } else if (Objects.isNull(country)) {
-            return new OperationResult(false, "Input object is null");
-        } else {
-            return new OperationResult(false, "No such country");
-        }
-
-        return new OperationResult(true, null);
-    }
-
-    public OperationResult setCountry(String countryName) {
-
-        Country country = CountriesDictionary.getCountryByName(countryName);
-
-        if (Objects.nonNull(country)) {
-            this.country = country;
-        } else {
-            return new OperationResult(false, "No such country found "+countryName);
-        }
-
-        return new OperationResult(true, null);
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public OperationResult setCity(String city) {
-
-        final String validCityFormat = "[a-zA-Z- ]*";
-
-        if (city.matches(validCityFormat)) {
-            this.city = city;
-        } else {
-            return new OperationResult(false, "Incorrect input format, should be "+validCityFormat);
-        }
-
-        return new OperationResult(true, null);
-    }
-
-    @Override
-    public String getPersonInfoAsString() {
-        return level + ", " + institution + ", from " + country + "/" + city;
-    }
-
-}
-
 
 
 import java.util.Objects;
@@ -723,6 +383,352 @@ public class CountriesDictionary {
 }
 
 
+public class Country {
+
+    private final String name;
+    private final String alpha2Code;
+    private final String alpha3Code;
+    private final String unitedNationsCode;
+    private final String phoneCode;
+
+    public Country(String phoneCode, String name, String alpha2Code, String alpha3Code, String unitedNationsCode) {
+        this.unitedNationsCode = unitedNationsCode;
+        this.alpha3Code = alpha3Code;
+        this.alpha2Code = alpha2Code;
+        this.name = name;
+        this.phoneCode = phoneCode;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getAlpha2Code() {
+        return alpha2Code;
+    }
+
+    public String getAlpha3Code() {
+        return alpha3Code;
+    }
+
+    public String getUnitedNationsCode() {
+        return unitedNationsCode;
+    }
+
+    public String getPhoneCode() {
+        return phoneCode;
+    }
+}
+
+import java.util.Objects;
+
+public class Education extends PersonalInfo {
+
+    private String level;
+    private String institution;
+    private Country country;
+    private String city;
+
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) throws OperationException {
+        if(level.matches("[a-zA-Z]+")){
+            this.level=level;
+        }else{
+            throw new OperationException("Specialization is incorrect! Use a-z or A-Z symbols");
+        }
+    }
+
+    public String getInstitution() {
+        return institution;
+    }
+
+    public void setInstitution(String institution) throws OperationException {
+
+        final String validInstitutionFormat = "[a-zA-Z-0-9 ]*";
+
+        if (city.matches(validInstitutionFormat)) {
+            this.institution = institution;
+        } else {
+            throw new OperationException( "Incorrect input format, should be "+validInstitutionFormat);
+        }
+}
+
+    public Country getCountry() {
+        return country;
+    }
+
+//    public void setCountry(Country country) throws OperationException {
+//
+//        Country c = CountriesDictionary.getCountryByName(country.getName());
+//
+//        if (Objects.nonNull(country) && Objects.nonNull(c)) {
+//            this.country = c;
+//        } else if (Objects.isNull(country)) {
+//            throw new OperationException( "Input object is null");
+//        } else {
+//            throw new OperationException("No such country");
+//        }
+//}
+
+    public void setCountry(String countryName) throws OperationException {
+
+        Country country = CountriesDictionary.getCountryByName(countryName);
+
+        if (Objects.nonNull(country)) {
+            this.country = country;
+        } else {
+            throw new OperationException("No such country found "+countryName);
+        }
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) throws OperationException{
+
+        final String validCityFormat = "[a-zA-Z- ]*";
+
+        if (city.matches(validCityFormat)) {
+            this.city = city;
+        } else {
+            throw new OperationException("Incorrect input format, should be "+validCityFormat);
+        }
+}
+
+    @Override
+    public String getPersonInfoAsString() {
+        return level + ", " + institution + ", from " + country + "/" + city;
+    }
+
+}
+
+public class Email extends Contact {
+
+    private String username; //maxim.semenov
+    private String mailProvider; //gmail.com
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) throws OperationException{
+        if(username.matches("[a-zA-Z._0-9]+")){
+            this.username=username;
+        }else{
+            throw new OperationException( "Username is incorrect! You can use a-z,A-Z,0-9._ symbols");
+        }
+    }
+
+    public String getMailProvider() {
+        return mailProvider;
+    }
+
+    public void setMailProvider(String mailProvider) throws OperationException{
+
+        final String validInputFormat = "[a-zA-Z0-9-_]*";
+
+        if (mailProvider.matches(validInputFormat)) {
+            this.mailProvider = mailProvider;
+        } else {
+            throw  new OperationException( "mailProvider format is incorrect should be "+validInputFormat);
+        }
+}
+
+    @Override
+    public String getContactAsString() {
+        return username + "@" + mailProvider;
+    }
+}
+
+public class FacebookAccount extends Contact {
+
+    private String username;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) throws OperationException {
+
+        final String validInputFormat = "[a-zA-Z0-9-_]*";
+
+        if (username.matches(validInputFormat)) {
+            this.username = username;
+        } else {
+            throw new OperationException( "Not a valid format of username, should be "+validInputFormat);
+        }
+}
+
+    @Override
+    public String getContactAsString() {
+        return "www.facebook.com/people/"+username;
+    }
+}
+
+public class Gender extends PersonalInfo {
+
+    private String type; //w, m
+
+    private final String MALE = "m";
+    private final String FEMALE = "f";
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) throws OperationException{
+
+        if (type.equalsIgnoreCase(MALE) || type.equalsIgnoreCase(FEMALE)) {
+            this.type = type;
+        } else {
+            throw new OperationException("Incorrect input, should be either " + MALE + " or " + FEMALE);
+        }
+    }
+
+    @Override
+    public String getPersonInfoAsString() {
+        return type;
+    }
+}
+
+public class InstagramAccount extends Contact {
+
+    private String account;
+
+    public String getAccount() {
+        return account;
+    }
+
+    public void setAccount(String account) throws OperationException {
+
+        final String validInputFormat = "[a-zA-Z0-9-_]*";
+
+        if (account.matches(validInputFormat)) {
+            this.account = account;
+        } else {
+            throw new OperationException("Not a valid format of account, should be "+validInputFormat);
+        }
+    }
+
+    @Override
+    public String getContactAsString() {
+        return "www.instagram.com/"+account;
+    }
+}
+
+public class ListOfContacts {
+
+    private ContactNode firstNode;
+    private ContactNode lastNode;
+    private int size = 0;
+
+    public int size() {
+        return size;
+    }
+
+    public boolean isEmpty() {
+
+        if (size == 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void clear() {
+
+        firstNode = null;
+        lastNode = null;
+        size = 0;
+
+    }
+
+    public Contact get(int index) {
+
+        ContactNode node = getNode(index);
+
+        if (node != null) {
+            return node.getContent();
+        }
+
+        return null;
+    }
+
+    private ContactNode getNode(int index) {
+
+        ContactNode iteratorNode = firstNode;
+
+        for (int i = 0; i < size; i++) {
+
+            if (i == index) {
+                return iteratorNode;
+            }
+
+            iteratorNode = iteratorNode.getNext();
+        }
+
+        return null;
+    }
+
+    public void set(int index, Contact content) {
+
+        ContactNode node = getNode(index);
+
+        if (node != null) {
+            node.setContent(content);
+        }
+
+    }
+
+    public void remove(int index) {
+
+        ContactNode node = getNode(index);
+
+        if (node != null) {
+
+            ContactNode prevNode = node.getPrevious();
+            ContactNode nextNode = node.getNext();
+
+            if (firstNode == lastNode) {
+                firstNode = null;
+                lastNode = null;
+            } else if (node == firstNode) {
+                firstNode = nextNode;
+                firstNode.setPrevious(null);
+            } else if (node == lastNode) {
+                lastNode = prevNode;
+                lastNode.setNext(null);
+            } else {
+                prevNode.setNext(nextNode);
+                nextNode.setPrevious(prevNode);
+            }
+
+            size--;
+        }
+
+    }
+
+    public void add(Contact content) {
+
+        if (size != 0) {
+            ContactNode node = new ContactNode(null, lastNode, content);
+            lastNode.setNext(node);
+            lastNode = node;
+        } else {
+            ContactNode node = new ContactNode(null, null, content);
+            firstNode = node;
+            lastNode = node;
+        }
+
+        size++;
+
+    }
+
+}
 
 public class ListOfPages {
 
@@ -835,7 +841,6 @@ public class ListOfPages {
 }
 
 
-
 public class ListOfPersonalInfos {
 
     private PersonalInfoNode firstNode;
@@ -946,45 +951,47 @@ public class ListOfPersonalInfos {
 
 }
 
+import java.util.Objects;
 
+public class MobilePhone extends Contact {
 
-public class ContactNode {
+    private String countryCode; //+7, +0, +1...
+    private String msisdn; //7015657645
 
-    private ContactNode next;
-    private ContactNode previous;
-    private Contact content;
-
-    public ContactNode(ContactNode next, ContactNode previous, Contact content) {
-        this.next = next;
-        this.previous = previous;
-        this.content = content;
+    public String getCountryCode() {
+        return countryCode;
     }
 
-    public ContactNode getNext() {
-        return next;
+    public void setCountryCode(String countryPhoneCode) throws OperationException {
+
+        Country country = CountriesDictionary.getCountryByPhoneCode(countryPhoneCode);
+
+        if (Objects.nonNull(country)) {
+            this.countryCode = countryPhoneCode;
+        } else {
+            throw new OperationException("Either no such phone code or database contains no code for that country");
+            }
     }
 
-    public void setNext(ContactNode next) {
-        this.next = next;
+    public String getMsisdn() {
+        return msisdn;
+
     }
 
-    public ContactNode getPrevious() {
-        return previous;
+    public void setMsisdn(String msisdn) throws OperationException {
+        if (msisdn.matches("[0-9]")) {
+            this.msisdn = msisdn;
+        } else {
+            throw new OperationException("Error! You can use only 0-9 numbers");
+        }
+
     }
 
-    public void setPrevious(ContactNode previous) {
-        this.previous = previous;
-    }
-
-    public Contact getContent() {
-        return content;
-    }
-
-    public void setContent(Contact content) {
-        this.content = content;
+    @Override
+    public String getContactAsString() {
+        return getCountryCode() + " " + getMsisdn();
     }
 }
-
 
 public class Name extends PersonalInfo {
 
@@ -998,45 +1005,60 @@ public class Name extends PersonalInfo {
         return firstname;
     }
 
-    public OperationResult setFirstname(String firstname) {
-        this.firstname = firstname;
-        return new OperationResult(true,null);
+    public void setFirstname(String firstname)throws OperationException {
+        if(firstname.matches("[a-zA-Z-]+")){
+            this.firstname=firstname;
+        }else{
+            throw  new OperationException("Firstname is incorrect! Try again");
+        }
     }
 
     public String getSurname() {
         return surname;
     }
 
-    public OperationResult setSurname(String surname) {
-        this.surname = surname;
-        return new OperationResult(true,null);
+    public void setSurname(String surname)throws OperationException {
+        if(surname.matches("[a-zA-Z-]+")){
+            this.surname=surname;
+        }else{
+            throw new OperationException("Surname is incorrect! Try again");
+        }
     }
 
     public String getPaternal() {
         return paternal;
     }
 
-    public OperationResult setPaternal(String paternal) {
-        this.paternal = paternal;
-        return new OperationResult(true,null);
+    public void setPaternal(String paternal) throws OperationException {
+        if(paternal.matches("[a-zA-Z-]+")){
+            this.paternal=paternal;
+        }else{
+            throw new OperationException("Paternal is incorrect! Try again");
+        }
     }
 
     public String getMaternal() {
         return maternal;
     }
 
-    public OperationResult setMaternal(String maternal) {
-        this.maternal = maternal;
-        return new OperationResult(true,null);
+    public void setMaternal(String maternal) throws OperationException{
+        if(maternal.matches("[a-zA-Z-]+")){
+            this.maternal=maternal;
+        }else{
+            throw new OperationException("Maternal is incorrect! Try again");
+        }
     }
 
     public String getPrefix() {
         return prefix;
     }
 
-    public OperationResult setPrefix(String prefix) {
-        this.prefix = prefix;
-        return new OperationResult(true,null);
+    public void setPrefix(String prefix) throws OperationException {
+        if(prefix.matches("[Mr.]")||prefix.matches("[Mrs.]")){
+            this.prefix=prefix;
+        }else{
+            throw new OperationException("Prefix incorrect! Use Mr. and Mrs.");
+        }
     }
 
     @Override
@@ -1045,383 +1067,37 @@ public class Name extends PersonalInfo {
     }
 }
 
-
-
-public class Person {
-
-    private ListOfPersonalInfos personalInfos = new ListOfPersonalInfos();
-    private int lastFreeCellInPersonalInfos = 0;
-
-    private ListOfContacts contacts = new ListOfContacts();
-    private int lastFreeCellInContacts = 0;
-
-    public ListOfPersonalInfos getPersonalInfos() {
-        return personalInfos;
-    }
-
-    public void setPersonalInfos(ListOfPersonalInfos personalInfos) {
-        this.personalInfos = personalInfos;
-    }
-
-    public ListOfContacts getContacts() {
-        return contacts;
-    }
-
-    public void setContacts(ListOfContacts contacts) {
-        this.contacts = contacts;
-    }
-
-    public void addPersonalInfo(PersonalInfo personalInfo) {
-        personalInfos.add(personalInfo);
-        lastFreeCellInPersonalInfos++;
-    }
-
-    public void addContact(Contact contact) {
-        contacts.add(contact);
-        lastFreeCellInContacts++;
-    }
-}
-
-
-public class FacebookAccount extends Contact {
-
-    private String username;
-
-    public String getUsername() {
-        return username;
-    }
-
-    public OperationResult setUsername(String username) {
-
-        final String validInputFormat = "[a-zA-Z0-9-_]*";
-
-        if (username.matches(validInputFormat)) {
-            this.username = username;
-        } else {
-            return new OperationResult(false, "Not a valid format of username, should be "+validInputFormat);
-        }
-
-        return new OperationResult(true, null);
-    }
-
-    @Override
-    public String getContactAsString() {
-        return "www.facebook.com/people/"+username;
-    }
-}
-
-
-public class Country {
-
-    private final String name;
-    private final String alpha2Code;
-    private final String alpha3Code;
-    private final String unitedNationsCode;
-    private final String phoneCode;
-
-    public Country(String phoneCode, String name, String alpha2Code, String alpha3Code, String unitedNationsCode) {
-        this.unitedNationsCode = unitedNationsCode;
-        this.alpha3Code = alpha3Code;
-        this.alpha2Code = alpha2Code;
-        this.name = name;
-        this.phoneCode = phoneCode;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getAlpha2Code() {
-        return alpha2Code;
-    }
-
-    public String getAlpha3Code() {
-        return alpha3Code;
-    }
-
-    public String getUnitedNationsCode() {
-        return unitedNationsCode;
-    }
-
-    public String getPhoneCode() {
-        return phoneCode;
-    }
-}
-
-
-public abstract class Contact {
-	public abstract String getContactAsString();
-}
-
-
-public class Email extends Contact {
-
-    private String username; //maxim.semenov
-    private String mailProvider; //gmail.com
-
-    public String getUsername() {
-        return username;
-    }
-
-    public OperationResult setUsername(String username) {
-        this.username = username;
-        return new OperationResult(true, null);
-    }
-
-    public String getMailProvider() {
-        return mailProvider;
-    }
-
-    public OperationResult setMailProvider(String mailProvider) {
-
-        final String validInputFormat = "[a-zA-Z0-9-_]*";
-
-        if (mailProvider.matches(validInputFormat)) {
-            this.mailProvider = mailProvider;
-        } else {
-            return new OperationResult(false, "mailProvider format is incorrect should be "+validInputFormat);
-        }
-
-        return new OperationResult(true, null);
-    }
-
-    @Override
-    public String getContactAsString() {
-        return username + "@" + mailProvider;
-    }
-}
-
-
-public class ListOfContacts {
-
-    private ContactNode firstNode;
-    private ContactNode lastNode;
-    private int size = 0;
-
-    public int size() {
-        return size;
-    }
-
-    public boolean isEmpty() {
-
-        if (size == 0) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public void clear() {
-
-        firstNode = null;
-        lastNode = null;
-        size = 0;
-
-    }
-
-    public Contact get(int index) {
-
-        ContactNode node = getNode(index);
-
-        if (node != null) {
-            return node.getContent();
-        }
-
-        return null;
-    }
-
-    private ContactNode getNode(int index) {
-
-        ContactNode iteratorNode = firstNode;
-
-        for (int i = 0; i < size; i++) {
-
-            if (i == index) {
-                return iteratorNode;
-            }
-
-            iteratorNode = iteratorNode.getNext();
-        }
-
-        return null;
-    }
-
-    public void set(int index, Contact content) {
-
-        ContactNode node = getNode(index);
-
-        if (node != null) {
-            node.setContent(content);
-        }
-
-    }
-
-    public void remove(int index) {
-
-        ContactNode node = getNode(index);
-
-        if (node != null) {
-
-            ContactNode prevNode = node.getPrevious();
-            ContactNode nextNode = node.getNext();
-
-            if (firstNode == lastNode) {
-                firstNode = null;
-                lastNode = null;
-            } else if (node == firstNode) {
-                firstNode = nextNode;
-                firstNode.setPrevious(null);
-            } else if (node == lastNode) {
-                lastNode = prevNode;
-                lastNode.setNext(null);
-            } else {
-                prevNode.setNext(nextNode);
-                nextNode.setPrevious(prevNode);
-            }
-
-            size--;
-        }
-
-    }
-
-    public void add(Contact content) {
-
-        if (size != 0) {
-            ContactNode node = new ContactNode(null, lastNode, content);
-            lastNode.setNext(node);
-            lastNode = node;
-        } else {
-            ContactNode node = new ContactNode(null, null, content);
-            firstNode = node;
-            lastNode = node;
-        }
-
-        size++;
-
-    }
-
-}
-
-
-public class Profession extends PersonalInfo {
-
-    private String professionGroup; //medical
-    private String professionName; //dentist
-
-    public String getProfessionGroup() {
-        return professionGroup;
-    }
-
-    public OperationResult setProfessionGroup(String professionGroup) {
-
-        final String validFormat = "[a-zA-Z- ]*";
-
-        if (professionGroup.matches(validFormat)) {
-            this.professionGroup = professionGroup;
-        } else {
-            return new OperationResult(false, "Not a valid profession group format, should be " + validFormat);
-        }
-
-        return new OperationResult(true, null);
-    }
-
-    public String getProfessionName() {
-        return professionName;
-    }
-
-    public OperationResult setProfessionName(String professionName) {
-
-        final String validFormat = "[a-zA-Z0-9- ]*";
-
-        if (professionName.matches(validFormat)) {
-            this.professionName = professionName;
-        } else {
-            return new OperationResult(false, "Incorrect format of input data, should be " + validFormat);
-        }
-
-        return new OperationResult(true, null);
-    }
-
-    @Override
-    public String getPersonInfoAsString() {
-        return professionName + "(" + professionGroup + ")";
-    }
-}
-
-
 public class OperationException extends Exception {
     public OperationException(String message) {
         super(message);
     }
 }
 
-
 public class OperationResult {
-	private Boolean isSuccess;
-	private String errorMsg;
+    private Boolean isSuccess;
+    private String errorMsg;
 
-	public OperationResult(Boolean isSuccess, String errorMsg) {
-		this.isSuccess = isSuccess;
-		this.errorMsg = errorMsg;
-	}
-
-	public Boolean getSuccess() {
-		return isSuccess;
-	}
-
-	public void setSuccess(Boolean success) {
-		isSuccess = success;
-	}
-
-	public String getErrorMsg() {
-		return errorMsg;
-	}
-
-	public void setErrorMsg(String errorMsg) {
-		this.errorMsg = errorMsg;
-	}
-}
-
-
-import java.util.Objects;
-
-public class MobilePhone extends Contact {
-
-    private String countryCode; //+7, +0, +1...
-    private String msisdn; //7015657645
-
-    public String getCountryCode() {
-        return countryCode;
+    public OperationResult(Boolean isSuccess, String errorMsg) {
+        this.isSuccess = isSuccess;
+        this.errorMsg = errorMsg;
     }
 
-    public OperationResult setCountryCode(String countryPhoneCode) {
-
-        Country country = CountriesDictionary.getCountryByPhoneCode(countryPhoneCode);
-
-        if (Objects.nonNull(country)) {
-            this.countryCode = countryPhoneCode;
-        } else {
-            return new OperationResult(false, "Either no such phone code or database contains no code for that country");
-        }
-
-        return new OperationResult(true, null);
+    public Boolean getSuccess() {
+        return isSuccess;
     }
 
-    public String getMsisdn() {
-        return msisdn;
+    public void setSuccess(Boolean success) {
+        isSuccess = success;
     }
 
-    public OperationResult setMsisdn(String msisdn) {
-        this.msisdn = msisdn;
-        return new OperationResult(true, null);
+    public String getErrorMsg() {
+        return errorMsg;
     }
 
-    @Override
-    public String getContactAsString() {
-        return getCountryCode() + " " + getMsisdn();
+    public void setErrorMsg(String errorMsg) {
+        this.errorMsg = errorMsg;
     }
 }
-
 
 public class Page {
 
@@ -1463,9 +1139,290 @@ public class Page {
     }
 }
 
+public class PageNode {
+
+    private PageNode next;
+    private PageNode previous;
+    private Page content;
+
+    public PageNode(PageNode next, PageNode previous, Page content) {
+        this.next = next;
+        this.previous = previous;
+        this.content = content;
+    }
+
+    public PageNode getNext() {
+        return next;
+    }
+
+    public void setNext(PageNode next) {
+        this.next = next;
+    }
+
+    public PageNode getPrevious() {
+        return previous;
+    }
+
+    public void setPrevious(PageNode previous) {
+        this.previous = previous;
+    }
+
+    public Page getContent() {
+        return content;
+    }
+
+    public void setContent(Page content) {
+        this.content = content;
+    }
+}
+
+public class Person {
+
+    private ListOfPersonalInfos personalInfos = new ListOfPersonalInfos();
+    private int lastFreeCellInPersonalInfos = 0;
+
+    private ListOfContacts contacts = new ListOfContacts();
+    private int lastFreeCellInContacts = 0;
+
+    public ListOfPersonalInfos getPersonalInfos() {
+        return personalInfos;
+    }
+
+    public void setPersonalInfos(ListOfPersonalInfos personalInfos) {
+        this.personalInfos = personalInfos;
+    }
+
+    public ListOfContacts getContacts() {
+        return contacts;
+    }
+
+    public void setContacts(ListOfContacts contacts) {
+        this.contacts = contacts;
+    }
+
+    public void addPersonalInfo(PersonalInfo personalInfo) {
+        personalInfos.add(personalInfo);
+        lastFreeCellInPersonalInfos++;
+    }
+
+    public void addContact(Contact contact) {
+        contacts.add(contact);
+        lastFreeCellInContacts++;
+    }
+}
 
 public abstract class PersonalInfo {
-	public abstract String getPersonInfoAsString();
+    public abstract String getPersonInfoAsString();
+}
+
+public class PersonalInfoNode {
+
+    private PersonalInfoNode next;
+    private PersonalInfoNode previous;
+    private PersonalInfo content;
+
+    public PersonalInfoNode(PersonalInfoNode next, PersonalInfoNode previous, PersonalInfo content) {
+        this.next = next;
+        this.previous = previous;
+        this.content = content;
+    }
+
+    public PersonalInfoNode getNext() {
+        return next;
+    }
+
+    public void setNext(PersonalInfoNode next) {
+        this.next = next;
+    }
+
+    public PersonalInfoNode getPrevious() {
+        return previous;
+    }
+
+    public void setPrevious(PersonalInfoNode previous) {
+        this.previous = previous;
+    }
+
+    public PersonalInfo getContent() {
+        return content;
+    }
+
+    public void setContent(PersonalInfo content) {
+        this.content = content;
+    }
+}
+
+public class Profession extends PersonalInfo {
+
+    private String professionGroup; //medical
+    private String professionName; //dentist
+
+    public String getProfessionGroup() {
+        return professionGroup;
+    }
+
+    public void setProfessionGroup(String professionGroup) throws OperationException{
+
+        final String validFormat = "[a-zA-Z- ]*";
+
+        if (professionGroup.matches(validFormat)) {
+            this.professionGroup = professionGroup;
+        } else {
+            throw new OperationException( "Not a valid profession group format, should be " + validFormat);
+        }
+    }
+
+    public String getProfessionName() {
+        return professionName;
+    }
+
+    public void setProfessionName(String professionName) throws OperationException {
+
+        final String validFormat = "[a-zA-Z0-9- ]*";
+
+        if (professionName.matches(validFormat)) {
+            this.professionName = professionName;
+        } else {
+            throw new OperationException("Incorrect format of input data, should be " + validFormat);
+        }
+    }
+
+    @Override
+    public String getPersonInfoAsString() {
+        return professionName + "(" + professionGroup + ")";
+    }
+}
+
+public class TelBook {
+
+    private String owner;
+    private ListOfPages pages = new ListOfPages();
+    private int lastEmptyPageIndex = 0;
+
+    public OperationResult add(Page page) {
+
+        if (page == null) {
+            return new OperationResult(false, "page is null");
+        } else if (page.getPerson() == null) {
+            return new OperationResult(false, "person cannot be null");
+        }
+
+        OperationResult operationResult = page.setPageNumber(lastEmptyPageIndex);
+
+        if (!operationResult.getSuccess()) {
+            return operationResult;
+        }
+
+        pages.add(page);
+        lastEmptyPageIndex++;
+
+        return new OperationResult(true, null);
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public int getLastEmptyPageIndex() {
+        return lastEmptyPageIndex;
+    }
+
+    public void setLastEmptyPageIndex(int lastEmptyPageIndex) {
+        this.lastEmptyPageIndex = lastEmptyPageIndex;
+    }
+
+    public void update(Page page, int pageIndex) {
+
+        int listIndex = getListIndex(pageIndex);
+        if (listIndex >= 0) {
+            pages.set(listIndex, page);
+        }
+
+    }
+
+    private int getListIndex(int pageIndex) {
+
+        for (int i = 0; i < pages.size(); i++) {
+
+            Page foundPage = pages.get(i);
+
+            if (foundPage.getPerson() != null) {
+                if (foundPage.getPageNumber() == pageIndex) {
+                    return i; //Attention: i.e. listIndex!=pageIndex
+                }
+            }
+
+        }
+
+        return -1;
+    }
+
+    public void delete(int pageIndex) {
+
+        int listIndex = getListIndex(pageIndex); //Attention: listIndex!=pageIndex
+
+        if (listIndex >= 0) {
+            pages.remove(listIndex);
+        }
+
+    }
+
+    public ListOfPages search(String keyWord) {
+
+        ListOfPages searchResults = new ListOfPages();
+
+        for (int i = 0; i < pages.size(); i++) {
+
+            Page foundPage = pages.get(i);
+
+            if (foundPage.getPerson() != null) {
+
+                ListOfPersonalInfos personalInfos = foundPage.getPerson().getPersonalInfos();
+
+                for (int j=0; j<personalInfos.size(); j++) {
+
+                    if (personalInfos.get(j).getPersonInfoAsString().contains(keyWord)) {
+                        searchResults.add(foundPage);
+                    }
+
+                }
+
+                ListOfContacts contacts = foundPage.getPerson().getContacts();
+
+                for (int j=0; j<contacts.size(); j++) {
+
+                    if (contacts.get(j).getContactAsString().contains(keyWord)) {
+                        searchResults.add(foundPage);
+                    }
+
+                }
+
+            }
+
+        }
+
+        return searchResults;
+    }
+
+    public Page get(int pageIndex) {
+
+        int listIndex = getListIndex(pageIndex); //Attention: listIndex!=pageIndex
+
+        if (listIndex >= 0) {
+            return pages.get(listIndex);
+        }
+
+        return null;
+    }
+
+    public ListOfPages getPages() {
+        return pages;
+    }
+
 }
 
 
@@ -1482,56 +1439,56 @@ public class TelephoneBookApplication {
         TelBook telBook = new TelBook();
 
         try {
-
             while (true) {
+                try {
+                    System.out.println("Menu: ");
+                    System.out.println("1 - Add page;");
+                    System.out.println("2 - Show all pages;");
+                    System.out.println("3 - Update page;");
+                    System.out.println("4 - Delete page;");
+                    System.out.println("5 - Search page;");
 
-                System.out.println("Menu: ");
-                System.out.println("1 - Add page;");
-                System.out.println("2 - Show all pages;");
-                System.out.println("3 - Update page;");
-                System.out.println("4 - Delete page;");
-                System.out.println("5 - Search page;");
+                    System.out.println("Enter option: ");
 
-                System.out.println("Enter option: ");
+                    int optionSelected = Integer.parseInt(scanner.nextLine());
 
-                int optionSelected = Integer.parseInt(scanner.nextLine());
+                    if (optionSelected == 1) {
+                        //TODO как тут прописать try catch?
+                        Page page = createPage(scanner);
+                        telBook.add(page);
+                    } else if (optionSelected == 2) {
+                        printPages(telBook.getPages());
 
-                if (optionSelected == 1) {
+                    } else if (optionSelected == 3) {
 
-                    Page page = createPage(scanner);
-                    tellMeIfError(telBook.add(page));
+                        System.out.println("Enter page number to replace: ");
+                        int pageIndex = Integer.parseInt(scanner.nextLine());
 
-                } else if (optionSelected == 2) {
+                        telBook.update(createPage(scanner), pageIndex);
 
-                    printPages(telBook.getPages());
+                    } else if (optionSelected == 4) {
 
-                } else if (optionSelected == 3) {
+                        System.out.println("Enter page number to delete: ");
+                        int pageIndex = Integer.parseInt(scanner.nextLine());
+                        telBook.delete(pageIndex);
 
-                    System.out.println("Enter page number to replace: ");
-                    int pageIndex = Integer.parseInt(scanner.nextLine());
+                    } else if (optionSelected == 5) {
 
-                    telBook.update(createPage(scanner), pageIndex);
+                        System.out.println("Enter search keyWord:");
+                        String keyWord = scanner.nextLine();
 
-                } else if (optionSelected == 4) {
+                        ListOfPages foundPages = telBook.search(keyWord);
 
-                    System.out.println("Enter page number to delete: ");
-                    int pageIndex = Integer.parseInt(scanner.nextLine());
+                        printPages(foundPages);
 
-                    telBook.delete(pageIndex);
-
-                } else if (optionSelected == 5) {
-
-                    System.out.println("Enter search keyWord:");
-                    String keyWord = scanner.nextLine();
-
-                    ListOfPages foundPages = telBook.search(keyWord);
-
-                    printPages(foundPages);
-
+                    }
+                }catch (NumberFormatException e){
+                    System.out.println("You can use numbers 1-5");
+                    continue;
                 }
             }
 
-        } catch (ClientWantsToExitException e) {
+        } catch (ClientWantsToExitException e ) {
             System.out.println("Thank you for using our software! See you later!");
             System.out.println("Exiting TelBook...");
         }
@@ -1555,36 +1512,76 @@ public class TelephoneBookApplication {
 
             if (infoType.equals("tel")) {
 
-                MobilePhone mobilePhone = new MobilePhone();
+                while (true) {
 
-                System.out.println("-Mobile phone-");
-                System.out.println("country code:");
-                tellMeIfError(mobilePhone.setCountryCode(scanner.nextLine()));
-                System.out.println("msisdn:");
-                tellMeIfError(mobilePhone.setMsisdn(scanner.nextLine()));
+                    MobilePhone mobilePhone = new MobilePhone();
 
-                person.addContact(mobilePhone);
+                    try {
+
+                        System.out.println("-Mobile phone-");
+                        System.out.println("country code:");
+                        mobilePhone.setCountryCode(scanLineOrThrowException(scanner));
+                        System.out.println("msisdn:");
+                        mobilePhone.setMsisdn(scanLineOrThrowException(scanner));
+
+                    } catch (OperationException e) {
+
+                        System.err.println(e.getMessage());
+                        System.out.println("Would you like to retry operation (Y/N)?");
+
+                        String l = scanner.nextLine();
+
+                        if (l.equals("Y")) {
+                            continue; //retry while loop from the start
+                        } else {
+                            break; //breaking while loop without calling person.addPersonalInfo(birthday)
+                        }
+                    }
+
+                    person.addContact(mobilePhone);
+                    break;
+                }
+
+
+
+
+
 
             } else if (infoType.equals("name")) {
+                while (true) {
+                    Name name = new Name();
 
-                Name name = new Name();
+                    try {
 
-                System.out.println("-Name-");
-                System.out.println("firstname:");
-                tellMeIfError(name.setFirstname(scanner.nextLine()));
-                System.out.println("surname:");
-                tellMeIfError(name.setSurname(scanner.nextLine()));
-                System.out.println("paternalname:");
-                tellMeIfError(name.setPaternal(scanner.nextLine()));
-                System.out.println("maternalname:");
-                tellMeIfError(name.setMaternal(scanner.nextLine()));
-                System.out.println("prefix:");
-                tellMeIfError(name.setPrefix(scanner.nextLine()));
+                        System.out.println("-Name-");
+                        System.out.println("firstname:");
+                        name.setFirstname(scanLineOrThrowException(scanner));
+                        System.out.println("surname:");
+                        name.setSurname(scanLineOrThrowException(scanner));
+                        System.out.println("paternalname:");
+                        name.setPaternal(scanLineOrThrowException(scanner));
+                        System.out.println("maternalname:");
+                        name.setMaternal(scanLineOrThrowException(scanner));
+                        System.out.println("prefix:");
+                        name.setPrefix(scanLineOrThrowException(scanner));
+                    } catch (OperationException e) {
 
-                person.addPersonalInfo(name);
+                        System.err.println(e.getMessage());
+                        System.out.println("Would you like to retry operation (Y/N)?");
 
+                        String l = scanner.nextLine();
+
+                        if (l.equals("Y")) {
+                            continue; //retry while loop from the start
+                        } else {
+                            break; //breaking while loop without calling person.addPersonalInfo(birthday)
+                        }
+                    }
+
+                    person.addPersonalInfo(name);
+                    break;
+                }
             } else if (infoType.equals("birthday")) {
-
 
                 while (true) {
 
@@ -1620,85 +1617,175 @@ public class TelephoneBookApplication {
 
 
             } else if (infoType.equals("twitter")) {
+                while (true) {
+                    TwitterAccount twitter = new TwitterAccount();
 
-                TwitterAccount twitter = new TwitterAccount();
+                    try {
+                        System.out.println("-Twitter-");
+                        System.out.println("username:");
+                        twitter.setUsername(scanLineOrThrowException(scanner));
+                    } catch (OperationException e) {
+                        System.err.println(e.getMessage());
+                        System.out.println("Would you like to retry operation (Y/N)?");
 
-                System.out.println("-Twitter-");
-                System.out.println("username:");
-                tellMeIfError(twitter.setUsername(scanner.nextLine()));
+                        String l = scanner.nextLine();
 
-                person.addContact(twitter);
-
+                        if (l.equals("Y")) {
+                            continue; //retry while loop from the start
+                        } else {
+                            break; //breaking while loop without calling person.addPersonalInfo(birthday)
+                        }
+                    }
+                    person.addContact(twitter);
+                    break;
+                }
             } else if (infoType.equals("email")) {
+                while (true) {
+                    Email email = new Email();
+                        try{
+                            System.out.println("-Email-");
+                            System.out.println("username:");
+                            email.setUsername(scanLineOrThrowException(scanner));
+                            System.out.println("mailProvider:");
+                            email.setMailProvider(scanLineOrThrowException(scanner));
+                        }catch (OperationException e) {
+                            System.err.println(e.getMessage());
+                            System.out.println("Would you like to retry operation (Y/N)?");
 
-                Email email = new Email();
+                            String l = scanner.nextLine();
 
-                System.out.println("-Email-");
-                System.out.println("username:");
-                tellMeIfError(email.setUsername(scanner.nextLine()));
-                System.out.println("mailProvider:");
-                tellMeIfError(email.setMailProvider(scanner.nextLine()));
+                            if (l.equals("Y")) {
+                                continue; //retry while loop from the start
+                            } else {
+                                break; //breaking while loop without calling person.addPersonalInfo(birthday)
+                            }
+                        }
 
-                person.addContact(email);
-
+                    person.addContact(email);
+                    break;
+                }
             } else if (infoType.equals("education")) {
+                while(true) {
 
-                Education education = new Education();
+                    Education education = new Education();
+                        try {
 
-                System.out.println("-Education-");
-                System.out.println("city:");
-                tellMeIfError(education.setCity(scanner.nextLine()));
-                System.out.println("country:");
-                tellMeIfError(education.setCountry(scanner.nextLine()));
-                System.out.println("institution:");
-                tellMeIfError(education.setInstitution(scanner.nextLine()));
-                System.out.println("level:");
-                tellMeIfError(education.setLevel(scanner.nextLine()));
+                            System.out.println("-Education-");
+                            System.out.println("city:");
+                            education.setCity(scanLineOrThrowException(scanner));
+                            System.out.println("country:");
+                            education.setCountry(scanLineOrThrowException(scanner));
+                            System.out.println("institution:");
+                            education.setInstitution(scanLineOrThrowException(scanner));
+                            System.out.println("level:");
+                            education.setLevel(scanLineOrThrowException(scanner));
+                        }catch (OperationException e){
+                            System.err.println(e.getMessage());
+                            System.out.println("Would you like to retry operation (Y/N)?");
 
-                person.addPersonalInfo(education);
+                            String l = scanner.nextLine();
 
+                            if (l.equals("Y")) {
+                                continue; //retry while loop from the start
+                            } else {
+                                break; //breaking while loop without calling person.addPersonalInfo(birthday)
+                            }
+                        }
+                    person.addPersonalInfo(education);
+                    break;
+                }
             } else if (infoType.equals("facebook")) {
+                while(true) {
 
-                FacebookAccount facebookAccount = new FacebookAccount();
+                    FacebookAccount facebookAccount = new FacebookAccount();
+                        try {
+                            System.out.println("-Facebook Account-");
+                            System.out.println("username:");
+                            facebookAccount.setUsername(scanLineOrThrowException(scanner));
+                        }catch (OperationException e){
+                            System.err.println(e.getMessage());
+                            System.out.println("Would you like to retry operation (Y/N)?");
 
-                System.out.println("-Facebook Account-");
-                System.out.println("username:");
-                tellMeIfError(facebookAccount.setUsername(scanner.nextLine()));
+                            String l = scanner.nextLine();
 
-                person.addContact(facebookAccount);
-
+                            if (l.equals("Y")) {
+                                continue; //retry while loop from the start
+                            } else {
+                                break; //breaking while loop without calling person.addPersonalInfo(birthday)
+                            }
+                        }
+                    person.addContact(facebookAccount);
+                    break;
+                }
             } else if (infoType.equals("gender")) {
+                while(true){
 
-                Gender gender = new Gender();
+                    Gender gender = new Gender();
+                    try {
+                        System.out.println("-Gender-");
+                        System.out.println("(m)ale/(f)emale:");
+                        gender.setType(scanLineOrThrowException(scanner));
+                    }catch (OperationException e){
+                        System.err.println(e.getMessage());
+                        System.out.println("Would you like to retry operation (Y/N)?");
 
-                System.out.println("-Gender-");
-                System.out.println("(m)ale/(f)emale:");
-                tellMeIfError(gender.setType(scanner.nextLine()));
+                        String l = scanner.nextLine();
 
-                person.addPersonalInfo(gender);
-
+                        if (l.equals("Y")) {
+                            continue; //retry while loop from the start
+                        } else {
+                            break; //breaking while loop without calling person.addPersonalInfo(birthday)
+                        }
+                    }
+                    person.addPersonalInfo(gender);
+                    break;
+                }
             } else if (infoType.equals("instagram_account")) {
+                while(true) {
+                    InstagramAccount instagramAccount = new InstagramAccount();
+                        try {
+                            System.out.println("-Instagram Account-");
+                            System.out.println("account:");
+                            instagramAccount.setAccount(scanLineOrThrowException(scanner));
+                        }catch(OperationException e){
+                            System.err.println(e.getMessage());
+                            System.out.println("Would you like to retry operation (Y/N)?");
 
-                InstagramAccount instagramAccount = new InstagramAccount();
+                            String l = scanner.nextLine();
 
-                System.out.println("-Instagram Account-");
-                System.out.println("account:");
-                tellMeIfError(instagramAccount.setAccount(scanner.nextLine()));
-
-                person.addContact(instagramAccount);
-
+                            if (l.equals("Y")) {
+                                continue; //retry while loop from the start
+                            } else {
+                                break; //breaking while loop without calling person.addPersonalInfo(birthday)
+                            }
+                        }
+                    person.addContact(instagramAccount);
+                    break;
+                }
             } else if (infoType.equals("profession")) {
+                while(true) {
+                    Profession profession = new Profession();
+                    try {
+                        System.out.println("-Profession-");
+                        System.out.println("profession group:");
+                        profession.setProfessionGroup(scanner.nextLine());
+                        System.out.println("profession name:");
+                        profession.setProfessionName(scanner.nextLine());
+                    }catch (OperationException e){
+                        System.err.println(e.getMessage());
+                        System.out.println("Would you like to retry operation (Y/N)?");
 
-                Profession profession = new Profession();
+                        String l = scanner.nextLine();
 
-                System.out.println("-Profession-");
-                System.out.println("profession group:");
-                tellMeIfError(profession.setProfessionGroup(scanner.nextLine()));
-                System.out.println("profession name:");
-                tellMeIfError(profession.setProfessionName(scanner.nextLine()));
-
-                person.addPersonalInfo(profession);
-
+                        if (l.equals("Y")) {
+                            continue; //retry while loop from the start
+                        } else {
+                            break; //breaking while loop without calling person.addPersonalInfo(birthday)
+                        }
+                    }
+                    person.addPersonalInfo(profession);
+                    break;
+                }
             } else if (infoType.equals("done")) {
                 break;
             }
@@ -1750,12 +1837,34 @@ public class TelephoneBookApplication {
         }
     }
 
-    private static void tellMeIfError(OperationResult operationResult) {
-
-        if (operationResult.getSuccess() == false) {
-            System.err.println(operationResult.getErrorMsg());
-        }
-    }
+//    private static void tellMeIfError(OperationResult operationResult) {
+//
+//        if (operationResult.getSuccess() == false) {
+//            System.err.println(operationResult.getErrorMsg());
+//        }
+//    }
 
 }
 
+
+public class TwitterAccount extends Contact {
+
+    private String username;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) throws OperationException {
+        if(username.matches("[a-zA-Z._0-9]+")){
+            this.username=username;
+        }else{
+            throw new OperationException("Username is incorrect! You can use a-z,A-Z,0-9._ symbols");
+        }
+    }
+
+    @Override
+    public String getContactAsString() {
+        return "www.twitter.com/"+username;
+    }
+}
